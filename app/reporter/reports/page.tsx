@@ -19,14 +19,13 @@ export default function MyReportsPage() {
       <div>
         <h2 className="text-2xl font-semibold text-slate-50">My Reports</h2>
         <p className="mt-2 text-slate-400">
-          Reportes originados por este peer ({peerId}). En la Fase 1 se crearán aquí al enviar.
+          Reportes originados por este peer ({peerId}).
         </p>
       </div>
 
       {mine.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-700 p-10 text-center text-slate-500">
-          Todavía no hay reportes de este peer. Usa Report Emergency para crear el primero en la
-          Fase 1.
+          Todavía no hay reportes de este peer. Usa Report Emergency para crear el primero.
         </div>
       ) : (
         <div className="grid gap-3">

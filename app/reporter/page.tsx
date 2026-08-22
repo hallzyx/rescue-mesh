@@ -7,7 +7,7 @@ const actions = [
   {
     href: "/reporter/report",
     title: "Report Emergency",
-    description: "Describe lo que ocurre en texto libre. QVAC lo procesará localmente en la Fase 1.",
+    description: "Describe lo que ocurre en texto libre. QVAC lo procesa localmente en tu dispositivo.",
     icon: AlertTriangle,
     primary: true,
   },
@@ -39,7 +39,7 @@ export default function ReporterHomePage() {
             <h2 className="text-2xl font-semibold text-slate-50">Reporta con claridad</h2>
             <p className="mt-2 max-w-2xl text-slate-400">
               No necesitas formularios complejos. Escribe lo que ves y RescueMesh lo convertirá en un
-              incidente estructurado cuando QVAC esté conectado.
+              incidente estructurado con QVAC local.
             </p>
           </div>
         </div>
