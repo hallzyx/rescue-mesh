@@ -4,12 +4,23 @@ import { PriorityBadge } from "@/components/rescuemesh/priority-badge";
 import { StatusBadge } from "@/components/rescuemesh/status-badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-function IncidentBody({ incident }: { incident: Incident }) {
+function IncidentBody({
+  incident,
+  duplicateCount = 0,
+}: {
+  incident: Incident;
+  duplicateCount?: number;
+}) {
   return (
     <CardContent className="space-y-3 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <PriorityBadge priority={incident.priority} />
         <StatusBadge status={incident.status} />
+        {duplicateCount > 0 ? (
+          <span className="rounded bg-violet-900/60 px-2 py-0.5 text-xs font-semibold text-violet-200">
+            Likely duplicate ({duplicateCount})
+          </span>
+        ) : null}
         <span className="ml-auto font-mono text-xs text-slate-500">{incident.id}</span>
       </div>
       <div>
@@ -36,11 +47,19 @@ function IncidentBody({ incident }: { incident: Incident }) {
   );
 }
 
-export function IncidentCard({ incident, href }: { incident: Incident; href: string }) {
+export function IncidentCard({
+  incident,
+  href,
+  duplicateCount,
+}: {
+  incident: Incident;
+  href: string;
+  duplicateCount?: number;
+}) {
   return (
     <Link href={href}>
       <Card className="border-slate-800 bg-slate-900/60 transition-colors hover:border-slate-600 hover:bg-slate-900">
-        <IncidentBody incident={incident} />
+        <IncidentBody incident={incident} duplicateCount={duplicateCount} />
       </Card>
     </Link>
   );

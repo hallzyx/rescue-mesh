@@ -1,6 +1,7 @@
 import { buildUserPrompt, QVAC_SYSTEM_PROMPT } from "./prompts";
 import { parseQvacResponse } from "./parser";
 import { analyzeWithLocalEngine } from "./local-engine";
+import { localizeSummary } from "./translate-summary";
 import type { QvacExtraction, QvacProvider } from "./schema";
 
 let cachedModelId: string | null = null;
@@ -86,7 +87,13 @@ export async function analyzeReportServer(rawReport: string): Promise<{
       const raw = await completeWithQvacSdk(trimmed);
       const parsed = parseQvacResponse(raw);
       if (parsed.ok) {
-        return { provider: "qvac-sdk", extraction: parsed.data };
+        return {
+          provider: "qvac-sdk",
+          extraction: {
+            ...parsed.data,
+            summary: localizeSummary(parsed.data, trimmed),
+          },
+        };
       }
       return { provider: "qvac-sdk", issues: parsed.issues, raw: parsed.raw };
     } catch (error) {
@@ -97,7 +104,13 @@ export async function analyzeReportServer(rawReport: string): Promise<{
   const local = analyzeWithLocalEngine(trimmed);
   const validated = parseQvacResponse(JSON.stringify(local));
   if (validated.ok) {
-    return { provider: "local-engine", extraction: validated.data };
+    return {
+      provider: "local-engine",
+      extraction: {
+        ...validated.data,
+        summary: localizeSummary(validated.data, trimmed),
+      },
+    };
   }
 
   return { provider: "local-engine", issues: validated.issues };

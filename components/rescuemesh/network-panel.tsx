@@ -20,6 +20,7 @@ function formatAiStatus(status: QvacRuntimeStatus | null): string {
 
 type P2PStatus = {
   peerId: string;
+  instanceLabel?: string;
   connectedCount: number;
   isolated: boolean;
   connectedPeers: { peerId: string; status: string }[];
@@ -81,6 +82,9 @@ export function NetworkPanel() {
         <div>
           <p className="text-slate-500">Node</p>
           <p>{nodeId}</p>
+          {p2pStatus?.instanceLabel ? (
+            <p className="mt-1 text-xs text-slate-500">Instance: {p2pStatus.instanceLabel}</p>
+          ) : null}
           <p className="mt-1 text-xs text-slate-500">App peer: {appPeerId}</p>
         </div>
         <div>

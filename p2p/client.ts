@@ -8,6 +8,7 @@ export async function fetchP2PStatus() {
   return response.json() as Promise<{
     peerId: string;
     publicKey: string;
+    instanceLabel?: string;
     connectedCount: number;
     isolated: boolean;
     connectedPeers: { peerId: string; publicKey: string; status: string }[];

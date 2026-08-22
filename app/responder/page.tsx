@@ -2,11 +2,14 @@
 
 import { countByPriority } from "@/domain/incident";
 import { IncidentCard } from "@/components/rescuemesh/incident-card";
+import { DuplicatePanel } from "@/components/rescuemesh/duplicate-panel";
 import { useIncidents } from "@/lib/incident-store";
+import { duplicateIdsFor, findLikelyDuplicates } from "@/domain/dedup";
 
 export default function ResponderDashboardPage() {
   const { incidents } = useIncidents();
   const counts = countByPriority(incidents);
+  const duplicateLinks = findLikelyDuplicates(incidents);
   const newestCritical = incidents.find(
     (incident) => incident.priority === "critical" && incident.status === "new",
   );
@@ -31,6 +34,8 @@ export default function ResponderDashboardPage() {
           <p className="mt-1 text-sm text-red-200/80">{newestCritical.summary}</p>
         </div>
       ) : null}
+
+      <DuplicatePanel incidents={incidents} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {(
@@ -66,6 +71,7 @@ export default function ResponderDashboardPage() {
                 key={incident.id}
                 incident={incident}
                 href={`/responder/incidents/${incident.id}`}
+                duplicateCount={duplicateIdsFor(incident.id, duplicateLinks).length}
               />
             ))}
           </div>

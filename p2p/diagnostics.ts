@@ -8,6 +8,7 @@ export type P2PDiagnostics = {
   peerId: string;
   publicKey: string;
   coreKey: string;
+  instanceLabel: string;
   connectedPeers: PeerConnectionInfo[];
   connectedCount: number;
   isolated: boolean;

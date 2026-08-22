@@ -94,6 +94,30 @@ Peer B sigue mostrando el incidente.
 
 ---
 
+## Stretch goals (Fase 4)
+
+### Audio → QVAC
+
+En `/reporter/report`, pulsa **Dictar reporte (local)**. Usa Web Speech API del navegador (sin STT cloud). El texto transcrito pasa por el mismo pipeline QVAC.
+
+### Traducción operacional
+
+Pulsa **Ejemplo ES (traducción)** y envía. El `rawReport` queda en español; el `summary` del dashboard sale en inglés operacional.
+
+### Deduplicación
+
+Si dos incidentes comparten zona, afectados similares y están a ≤30 min, aparecen en **Likely duplicates** en el dashboard del Responder. No se borran ni fusionan solos.
+
+### Tercer peer
+
+```bash
+npm run dev:peer-c
+```
+
+Abre `http://127.0.0.1:43149` → Command Center. Tres stores independientes, tres Peer IDs, mismo mesh P2P.
+
+---
+
 ## Checklist de credibilidad
 
 - [ ] Av. Grau 120 → CRITICAL + rescue + medical (estable)

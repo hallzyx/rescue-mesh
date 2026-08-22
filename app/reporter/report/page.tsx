@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { IncidentListItem } from "@/components/rescuemesh/incident-card";
+import { AudioDictation } from "@/components/rescuemesh/audio-dictation";
 import { ManualReviewForm } from "@/components/rescuemesh/manual-review-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,9 @@ import type { QvacExtraction } from "@/qvac/schema";
 
 const EXAMPLE =
   "Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.";
+
+const EXAMPLE_ES =
+  "Se cayó parte del edificio. Somos tres, una persona está atrapada y otra está sangrando. Estamos en Av. Grau 120.";
 
 type Step = "compose" | "analyzing" | "preview" | "manual" | "saved";
 
@@ -125,13 +129,26 @@ export default function ReportEmergencyPage() {
               />
             </div>
             <div className="flex flex-wrap gap-2">
+              <AudioDictation
+                onTranscript={(text, append) => {
+                  setReport((current) => (append && current ? `${current} ${text}` : text));
+                }}
+              />
               <Button
                 type="button"
                 variant="outline"
                 className="border-slate-700 text-slate-300"
                 onClick={() => setReport(EXAMPLE)}
               >
-                Usar ejemplo del demo
+                Ejemplo EN (demo)
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-slate-700 text-slate-300"
+                onClick={() => setReport(EXAMPLE_ES)}
+              >
+                Ejemplo ES (traducción)
               </Button>
               <Button
                 className="bg-red-700 hover:bg-red-600"

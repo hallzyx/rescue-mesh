@@ -187,6 +187,7 @@ class RescueMeshPeerService {
       peerId: this.peerId,
       publicKey: this.publicKey,
       coreKey: this.coreKey,
+      instanceLabel: process.env.RESCUEMESH_INSTANCE_LABEL?.trim() || "Peer",
       connectedPeers,
       connectedCount,
       isolated: connectedCount === 0,

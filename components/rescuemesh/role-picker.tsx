@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, Headphones, Radio } from "lucide-react";
+import { AlertTriangle, Building2, Headphones, Radio } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { setRole } from "@/lib/peer-session";
@@ -28,7 +28,7 @@ export function RolePicker() {
         <p className="mt-1 text-xs text-slate-500">Sin autenticación · Desktop MVP</p>
       </div>
 
-      <div className="grid w-full max-w-3xl gap-4 sm:grid-cols-2">
+      <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
         <Card className="border-slate-800 bg-slate-900/80">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-slate-100">
@@ -62,6 +62,27 @@ export function RolePicker() {
               onClick={() => choose("responder")}
             >
               Entrar como Responder
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-800 bg-slate-900/80">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-slate-100">
+              <Building2 className="size-5 text-violet-400" />
+              Command Center
+            </CardTitle>
+            <CardDescription className="text-slate-400">
+              Tercer peer: vista operacional de mando. Usa{" "}
+              <code className="text-violet-300">npm run dev:peer-c</code> (puerto 43149).
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              className="w-full bg-violet-700 hover:bg-violet-600"
+              onClick={() => choose("responder")}
+            >
+              Entrar como Command Center
             </Button>
           </CardContent>
         </Card>

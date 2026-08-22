@@ -4,11 +4,9 @@ Red descentralizada de coordinación para emergencias. Convierte reportes humano
 
 > WhatsApp communicates. RescueMesh coordinates.
 
-Fuente de verdad del alcance: [`docs/PRD.md`](./docs/PRD.md)  
-Plan de implementación: [`PLAN.md`](./PLAN.md) · tablero interactivo en `/plan`  
-Guion de demo: [`docs/DEMO.md`](./docs/DEMO.md)
+Fuente de verdad: [`docs/PRD.md`](./docs/PRD.md) · Plan: [`PLAN.md`](./PLAN.md) · Demo: [`docs/DEMO.md`](./docs/DEMO.md)
 
-## Estado actual
+## Estado — MVP completo (Fases 0–4)
 
 | Fase | Estado |
 |------|--------|
@@ -16,16 +14,14 @@ Guion de demo: [`docs/DEMO.md`](./docs/DEMO.md)
 | 1 — QVAC Crisis Copilot | ✅ |
 | 2 — Pear / P2P | ✅ |
 | 3 — Demo Reliability | ✅ |
+| 4 — Stretch goals | ✅ |
 
-**Fase 3 incluye:**
-- Precarga QVAC al iniciar (`POST /api/qvac/warmup`)
-- Barra de runtime: `AI LOCAL ✓ · P2P CONNECTED ✓ · CENTRAL SERVER NONE`
-- Modo demo (`?demo=1`) con tipografía grande para OBS
-- Pantalla `/demo` — director de grabación con flujo de 7 pasos
-- Errores visibles sin stack traces (QVAC, P2P, storage corrupto)
-- Banner **NEW CRITICAL INCIDENT** en dashboard del Responder
+### Fase 4 — Stretch goals
 
-**Siguiente:** Fase 4 — Stretch goals (audio, traducción, deduplicación, tercer peer).
+- **Audio:** dictado local (Web Speech API) → texto → QVAC → incidente
+- **Traducción:** reportes en español → resumen operacional en inglés (`rawReport` conservado)
+- **Deduplicación:** panel *Likely duplicates* — sugiere equivalentes, no fusiona en silencio
+- **Tercer peer:** `npm run dev:peer-c` — Command Center (puerto 43149)
 
 ## Cómo correrlo
 
@@ -34,29 +30,25 @@ npm install
 npm run dev
 ```
 
-Abre [http://127.0.0.1:43147](http://127.0.0.1:43147).
-
-### Demo P2P (recomendado para grabar)
+### Demo P2P (3 peers)
 
 ```bash
-npm run dev:peer-a   # Reporter — puerto 43147
-npm run dev:peer-b   # Responder — puerto 43148
+npm run dev:peer-a   # Citizen / Reporter — 43147
+npm run dev:peer-b   # Brigade / Responder — 43148
+npm run dev:peer-c   # Command Center — 43149
 ```
 
-Director de demo: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
+Director OBS: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
 
-Añade `?demo=1` a cualquier ruta para layout OBS (ej. `/reporter/report?demo=1`).
-
-## Rutas
+## Rutas clave
 
 | Ruta | Uso |
 |------|-----|
-| `/` | Elegir rol |
-| `/demo` | Director OBS + checklist 7 pasos |
-| `/reporter/report` | Enviar reporte con QVAC |
-| `/responder` | Dashboard operacional |
-| `/*/network` | Diagnóstico P2P + QVAC |
+| `/` | Elegir rol (Reporter, Brigade, Command Center) |
+| `/demo` | Director OBS + checklist |
+| `/reporter/report` | Texto o dictado → QVAC |
+| `/responder` | Dashboard + deduplicación |
 
 ## Stack
 
-Next.js, TypeScript, Tailwind CSS, shadcn/ui, QVAC (local), Pear ecosystem (Hyperswarm, Corestore, Hyperbee). Desktop MVP. Sin backend central.
+Next.js, TypeScript, Tailwind, shadcn/ui, QVAC local, Pear (Hyperswarm, Corestore, Hyperbee). Sin backend central.

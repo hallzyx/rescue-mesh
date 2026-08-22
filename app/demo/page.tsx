@@ -10,10 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const PEER_A_URL = "http://127.0.0.1:43147";
 const PEER_B_URL = "http://127.0.0.1:43148";
+const PEER_C_URL = "http://127.0.0.1:43149";
 
 export default function DemoDirectorPage() {
   const [peerA, setPeerA] = useState("------");
   const [peerB, setPeerB] = useState("------");
+  const [peerC, setPeerC] = useState("------");
   const [p2pConnected, setP2pConnected] = useState(false);
 
   useEffect(() => {
@@ -40,6 +42,17 @@ export default function DemoDirectorPage() {
       } catch {
         if (!active) return;
         setPeerA("offline");
+      }
+
+      try {
+        const status = await fetch(`${PEER_C_URL}/api/p2p/status`, { cache: "no-store" }).then(
+          (response) => response.json(),
+        );
+        if (!active) return;
+        setPeerC(status.peerId ?? "------");
+      } catch {
+        if (!active) return;
+        setPeerC("offline");
       }
     }
 
@@ -70,10 +83,10 @@ export default function DemoDirectorPage() {
 
         <DemoStatusBar />
 
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-3">
           <Card className="border-slate-800 bg-slate-900/70">
             <CardHeader>
-              <CardTitle className="text-xl text-red-300">Peer A — Reporter</CardTitle>
+              <CardTitle className="text-xl text-red-300">Peer A — Citizen</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="font-mono text-2xl font-bold">{peerA}</p>
@@ -86,13 +99,26 @@ export default function DemoDirectorPage() {
 
           <Card className="border-slate-800 bg-slate-900/70">
             <CardHeader>
-              <CardTitle className="text-xl text-violet-300">Peer B — Responder</CardTitle>
+              <CardTitle className="text-xl text-sky-300">Peer B — Brigade</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="font-mono text-2xl font-bold">{peerB}</p>
               <p className="text-sm text-slate-400">{PEER_B_URL}</p>
-              <Button className="w-full bg-violet-700 hover:bg-violet-600" render={<Link href={`${PEER_B_URL}/responder?demo=1`} target="_blank" />} >
+              <Button className="w-full bg-sky-700 hover:bg-sky-600" render={<Link href={`${PEER_B_URL}/responder?demo=1`} target="_blank" />} >
                 Abrir Dashboard
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-800 bg-slate-900/70">
+            <CardHeader>
+              <CardTitle className="text-xl text-violet-300">Peer C — Command</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="font-mono text-2xl font-bold">{peerC}</p>
+              <p className="text-sm text-slate-400">{PEER_C_URL}</p>
+              <Button className="w-full bg-violet-700 hover:bg-violet-600" render={<Link href={`${PEER_C_URL}/responder?demo=1`} target="_blank" />} >
+                Abrir Command Center
               </Button>
             </CardContent>
           </Card>
@@ -121,7 +147,9 @@ export default function DemoDirectorPage() {
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5 text-center">
           <p className="text-lg font-semibold text-slate-200">
-            {p2pConnected ? "P2P CONNECTED ✓" : "Levanta ambos peers: npm run dev:peer-a y dev:peer-b"}
+            {p2pConnected
+              ? "P2P CONNECTED ✓"
+              : "Levanta peers: npm run dev:peer-a, dev:peer-b y dev:peer-c"}
           </p>
           <p className="mt-2 text-sm italic text-slate-400">
             The original reporter is gone. The incident isn&apos;t.
