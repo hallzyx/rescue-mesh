@@ -13,6 +13,7 @@ const SEEDED_KEY = "rescuemesh-seeded-v1";
 const listeners = new Set<() => void>();
 let snapshot: Incident[] = SEED_INCIDENTS;
 let syncStarted = false;
+let lastP2PErrorAt = 0;
 
 function emit() {
   listeners.forEach((listener) => listener());
@@ -37,12 +38,7 @@ function ensureSeed(): Incident[] {
     const parsed = JSON.parse(raw) as Incident[];
     return Array.isArray(parsed) ? parsed : SEED_INCIDENTS;
   } catch {
-    pushSystemError({
-      title: "Almacenamiento local dañado",
-      message:
-        "No se pudieron leer los incidentes guardados. Se restauró el estado inicial de demo.",
-      severity: "warning",
-    });
+    console.warn("[storage] localStorage corrupto; se restaura el seed de demo.");
     window.localStorage.removeItem(STORAGE_KEY);
     return SEED_INCIDENTS;
   }
@@ -64,7 +60,12 @@ function getServerSnapshot(): Incident[] {
   return SEED_INCIDENTS;
 }
 
+function incidentsEqual(a: Incident[], b: Incident[]): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 function writeIncidents(incidents: Incident[]) {
+  if (incidentsEqual(snapshot, incidents)) return;
   snapshot = incidents;
   if (typeof window !== "undefined") {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(incidents));
@@ -84,6 +85,9 @@ async function syncFromP2P() {
     const merged = mergeIncidentLists(getSnapshot(), remote);
     writeIncidents(merged);
   } catch {
+    const now = Date.now();
+    if (now - lastP2PErrorAt < 15_000) return;
+    lastP2PErrorAt = now;
     pushSystemError({
       title: "Sincronización P2P interrumpida",
       message: "Los incidentes locales siguen disponibles. El mesh se reintentará automáticamente.",

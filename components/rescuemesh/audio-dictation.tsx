@@ -1,16 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isSpeechRecognitionSupported, startDictation } from "@/lib/speech";
+
+function subscribe() {
+  return () => {};
+}
 
 export function AudioDictation({
   onTranscript,
 }: {
   onTranscript: (text: string, append: boolean) => void;
 }) {
-  const supported = isSpeechRecognitionSupported();
+  const supported = useSyncExternalStore(subscribe, isSpeechRecognitionSupported, () => false);
   const [listening, setListening] = useState(false);
   const stopRef = useRef<(() => void) | null>(null);
 

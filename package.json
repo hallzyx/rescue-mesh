@@ -9,11 +9,12 @@
     "dev:peer-c": "RESCUEMESH_P2P_STORAGE=.p2p-data-c RESCUEMESH_INSTANCE_LABEL=Command Center next dev --port 43149",
     "build": "next build",
     "start": "next start --port 43147",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify": "npm run build && npm run lint",
+    "verify:demo": "node scripts/verify-demo.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
-    "autobase": "^7.28.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "corestore": "^7.12.0",

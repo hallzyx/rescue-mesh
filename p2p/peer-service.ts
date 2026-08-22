@@ -6,10 +6,17 @@ import Hyperswarm from "hyperswarm";
 import Hyperbee from "hyperbee";
 import type { Incident } from "@/domain/incident";
 import { shortPeerId, type P2PDiagnostics, type PeerConnectionInfo } from "./diagnostics";
-import { mergeIncidentLists } from "./merge";
+import { mergeIncidents } from "./merge";
 import { createMessageDecoder, encodeMessage, type P2PHello, type P2PMessage } from "./messages";
 
 const NETWORK_TOPIC = crypto.createHash("sha256").update("rescuemesh-coordination-v1").digest();
+
+type SwarmSocket = {
+  write(data: Buffer): void;
+  destroyed?: boolean;
+  on(event: "data", cb: (chunk: Buffer) => void): void;
+  on(event: string, cb: (...args: unknown[]) => void): void;
+};
 
 type PeerServiceGlobal = {
   __rescuemeshPeerService?: RescueMeshPeerService;
@@ -25,7 +32,6 @@ class RescueMeshPeerService {
   private publicKey = "";
   private peerId = "";
   private coreKey = "";
-  private remoteCoreKeys = new Set<string>();
   private peers = new Map<string, PeerConnectionInfo>();
   private started = false;
 
@@ -53,21 +59,34 @@ class RescueMeshPeerService {
     this.coreKey = this.publicKey;
     this.peerId = shortPeerId(this.publicKey);
 
-    this.swarm.on("connection", (socket) => {
-      this.store.replicate(socket);
-
-      const onMessage = (message: P2PMessage) => {
+    this.swarm.on("connection", (socket: SwarmSocket) => {
+      let remoteKey: string | null = null;
+      const decode = createMessageDecoder((message: P2PMessage) => {
         if (message.type === "hello") {
+          remoteKey = message.publicKey;
           this.handleHello(message, socket);
           return;
         }
         if (message.type === "upsert") {
           void this.ingestRemoteIncident(message.incident);
         }
-      };
+      });
 
-      const decode = createMessageDecoder(onMessage);
       socket.on("data", decode);
+      socket.on("close", () => {
+        if (!remoteKey) return;
+        const existing = this.peers.get(remoteKey);
+        if (existing) {
+          this.peers.set(remoteKey, { ...existing, status: "disconnected" });
+        }
+      });
+      socket.on("error", () => {
+        if (!remoteKey) return;
+        const existing = this.peers.get(remoteKey);
+        if (existing) {
+          this.peers.set(remoteKey, { ...existing, status: "disconnected" });
+        }
+      });
 
       const hello: P2PHello = {
         type: "hello",
@@ -75,7 +94,7 @@ class RescueMeshPeerService {
         publicKey: this.publicKey,
         coreKey: this.coreKey,
       };
-      socket.write(encodeMessage(hello));
+      this.safeWrite(socket, encodeMessage(hello));
     });
 
     this.swarm.join(NETWORK_TOPIC, { server: true, client: true });
@@ -83,8 +102,16 @@ class RescueMeshPeerService {
     this.started = true;
   }
 
-  private handleHello(message: P2PHello, socket: { destroyed?: boolean }) {
-    this.remoteCoreKeys.add(message.coreKey);
+  private safeWrite(socket: SwarmSocket, payload: Buffer) {
+    if (socket.destroyed) return;
+    try {
+      socket.write(payload);
+    } catch (error) {
+      console.error("[p2p] write failed", error);
+    }
+  }
+
+  private handleHello(message: P2PHello, socket: SwarmSocket) {
     this.peers.set(message.publicKey, {
       peerId: message.peerId,
       publicKey: message.publicKey,
@@ -95,7 +122,7 @@ class RescueMeshPeerService {
 
   private async replayLocalIncidents() {
     if (this.getConnectedCount() === 0) return;
-    const local = await this.readBee(this.bee);
+    const local = await this.readBee();
     for (const incident of local) {
       this.broadcast({
         type: "upsert",
@@ -106,9 +133,10 @@ class RescueMeshPeerService {
 
   private async ingestRemoteIncident(incident: Incident) {
     const current = await this.bee.get(incident.id);
-    const merged = current?.value
-      ? mergeIncidentLists([current.value as Incident], [incident])[0]
-      : { ...incident, syncStatus: "synced" as const };
+    const merged = mergeIncidents(
+      current?.value as Incident | undefined,
+      { ...incident, syncStatus: "synced" },
+    );
     await this.bee.put(merged.id, merged);
     await this.core.update();
   }
@@ -128,49 +156,20 @@ class RescueMeshPeerService {
   private broadcast(message: P2PMessage) {
     const payload = encodeMessage(message);
     for (const connection of this.swarm.connections) {
-      connection.write(payload);
+      this.safeWrite(connection, payload);
     }
   }
 
-  private async readBee(bee: Hyperbee): Promise<Incident[]> {
+  private async readBee(): Promise<Incident[]> {
     const incidents: Incident[] = [];
-    for await (const entry of bee.createReadStream()) {
+    for await (const entry of this.bee.createReadStream()) {
       if (entry.value) incidents.push(entry.value as Incident);
     }
     return incidents;
   }
 
-  private async readRemoteIncidents(): Promise<Incident[]> {
-    const lists: Incident[][] = [];
-
-    for (const coreKeyHex of this.remoteCoreKeys) {
-      if (coreKeyHex === this.coreKey) continue;
-      try {
-        const remoteCore = this.store.get({
-          key: Buffer.from(coreKeyHex, "hex"),
-        });
-        await remoteCore.ready();
-        if (remoteCore.length > 0) {
-          await remoteCore.download({ start: 0, end: remoteCore.length }).done();
-        }
-        const remoteBee = new Hyperbee(remoteCore, {
-          keyEncoding: "utf-8",
-          valueEncoding: "json",
-        });
-        await remoteBee.ready();
-        lists.push(await this.readBee(remoteBee));
-      } catch (error) {
-        console.error("[p2p] remote read failed", error);
-      }
-    }
-
-    return mergeIncidentLists(...lists);
-  }
-
   async listIncidents(): Promise<Incident[]> {
-    const local = await this.readBee(this.bee);
-    const remote = await this.readRemoteIncidents();
-    return mergeIncidentLists(local, remote);
+    return this.readBee();
   }
 
   getConnectedCount(): number {
@@ -217,6 +216,10 @@ export async function getPeerService(): Promise<RescueMeshPeerService> {
       (service) => {
         globalScope.__rescuemeshPeerService = service;
         return service;
+      },
+      (error) => {
+        globalScope.__rescuemeshPeerServiceInit = undefined;
+        throw error;
       },
     );
   }

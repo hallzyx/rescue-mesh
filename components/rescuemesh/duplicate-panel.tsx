@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Incident } from "@/domain/incident";
-import { duplicateIdsFor, findLikelyDuplicates } from "@/domain/dedup";
+import { findLikelyDuplicates } from "@/domain/dedup";
 
 export function DuplicatePanel({ incidents }: { incidents: Incident[] }) {
   const links = findLikelyDuplicates(incidents);
@@ -48,22 +48,5 @@ export function DuplicatePanel({ incidents }: { incidents: Incident[] }) {
         ))}
       </ul>
     </section>
-  );
-}
-
-export function DuplicateBadge({
-  incidentId,
-  incidents,
-}: {
-  incidentId: string;
-  incidents: Incident[];
-}) {
-  const related = duplicateIdsFor(incidentId, findLikelyDuplicates(incidents));
-  if (related.length === 0) return null;
-
-  return (
-    <span className="rounded bg-violet-900/60 px-2 py-0.5 text-xs font-semibold text-violet-200">
-      Likely duplicate ({related.length})
-    </span>
   );
 }

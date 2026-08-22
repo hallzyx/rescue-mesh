@@ -29,10 +29,12 @@ const NEED_KEYWORDS: Record<NeedType, RegExp[]> = {
   infrastructure: [
     /\binfraestructura\b/i,
     /\binfrastructure\b/i,
-    /\bedificio\b/i,
-    /\bbuilding\b/i,
     /\belectric/i,
-    /\bluz\b/i,
+    /\bblackout\b/i,
+    /\bluz cortada\b/i,
+    /\bpuente\b/i,
+    /\bgas leak\b/i,
+    /\bfuga de gas\b/i,
   ],
   other: [],
 };
@@ -107,12 +109,14 @@ function extractCount(text: string, patterns: RegExp[]): number {
       three: 3,
       four: 4,
       five: 5,
+      twelve: 12,
       uno: 1,
       una: 1,
       dos: 2,
       tres: 3,
       cuatro: 4,
       cinco: 5,
+      doce: 12,
     };
     if (words[token] !== undefined) return words[token];
     const num = Number(token);

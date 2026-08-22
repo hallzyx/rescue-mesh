@@ -40,4 +40,8 @@ yarn-error.log*
 .p2p-data
 .p2p-data-a
 .p2p-data-b
+.p2p-data-c
+
+# typescript
+*.tsbuildinfo
 

@@ -30,6 +30,10 @@ export function createMessageDecoder(onMessage: (message: P2PMessage) => void) {
 
     while (buffer.length >= 4) {
       const length = buffer.readUInt32BE(0);
+      if (length > 2_000_000) {
+        buffer = Buffer.alloc(0);
+        return;
+      }
       if (buffer.length < 4 + length) return;
       const body = buffer.subarray(4, 4 + length);
       buffer = buffer.subarray(4 + length);

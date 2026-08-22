@@ -15,6 +15,7 @@ import { getPeerId } from "@/lib/peer-session";
 import { pushSystemError } from "@/lib/system-errors";
 import { analyzeReport } from "@/qvac/client";
 import type { QvacExtraction } from "@/qvac/schema";
+import type { Incident } from "@/domain/incident";
 
 const EXAMPLE =
   "Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.";
@@ -33,6 +34,7 @@ export default function ReportEmergencyPage() {
   const [extraction, setExtraction] = useState<QvacExtraction | null>(null);
   const [issues, setIssues] = useState<{ field: string; message: string }[]>([]);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [previewIncident, setPreviewIncident] = useState<Incident | null>(null);
 
   async function handleAnalyze() {
     const trimmed = report.trim();
@@ -44,7 +46,13 @@ export default function ReportEmergencyPage() {
       setProvider(result.provider);
 
       if (result.ok) {
+        const incident = buildIncident({
+          rawReport: trimmed,
+          createdByPeerId: getPeerId(),
+          extraction: result.extraction,
+        });
         setExtraction(result.extraction);
+        setPreviewIncident(incident);
         setIssues([]);
         setStep("preview");
         return;
@@ -65,12 +73,13 @@ export default function ReportEmergencyPage() {
   }
 
   function persistIncident(data: QvacExtraction) {
-    const peerId = getPeerId();
-    const incident = buildIncident({
-      rawReport: report.trim(),
-      createdByPeerId: peerId,
-      extraction: data,
-    });
+    const incident =
+      previewIncident ??
+      buildIncident({
+        rawReport: report.trim(),
+        createdByPeerId: getPeerId(),
+        extraction: data,
+      });
     addIncident(incident);
     setSavedId(incident.id);
     setStep("saved");
@@ -84,18 +93,10 @@ export default function ReportEmergencyPage() {
   function resetFlow() {
     setStep("compose");
     setExtraction(null);
+    setPreviewIncident(null);
     setIssues([]);
     setSavedId(null);
   }
-
-  const previewIncident =
-    extraction && step === "preview"
-      ? buildIncident({
-          rawReport: report.trim(),
-          createdByPeerId: getPeerId(),
-          extraction,
-        })
-      : null;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
