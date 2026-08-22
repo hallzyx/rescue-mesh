@@ -24,6 +24,6 @@ export async function POST(request: Request) {
 
   return jsonWithCors(request, {
     introduced: true,
-    diagnostics: peer.getDiagnostics(),
+    diagnostics: await peer.getDiagnostics(),
   });
 }
