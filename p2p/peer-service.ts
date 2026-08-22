@@ -11,6 +11,12 @@ import { createMessageDecoder, encodeMessage, type P2PHello, type P2PMessage } f
 
 const NETWORK_TOPIC = crypto.createHash("sha256").update("rescuemesh-coordination-v1").digest();
 
+const LOCAL_PEER_URLS = [
+  "http://127.0.0.1:43147",
+  "http://127.0.0.1:43148",
+  "http://127.0.0.1:43149",
+];
+
 type SwarmSocket = {
   write(data: Buffer): void;
   destroyed?: boolean;
@@ -102,6 +108,32 @@ class RescueMeshPeerService {
     this.swarm.join(NETWORK_TOPIC, { server: true, client: true });
     await this.swarm.flush();
     this.started = true;
+    this.startLocalIntroduction();
+  }
+
+  /** Presenta peers locales (misma laptop, puertos de demo). No es un backend central. */
+  private startLocalIntroduction() {
+    const tick = async () => {
+      if (this.getConnectedCount() > 0) return;
+      for (const base of LOCAL_PEER_URLS) {
+        try {
+          const response = await fetch(`${base}/api/p2p/status`, {
+            signal: AbortSignal.timeout(800),
+          });
+          if (!response.ok) continue;
+          const status = (await response.json()) as { swarmPublicKey?: string };
+          if (!status.swarmPublicKey || status.swarmPublicKey === this.swarmPublicKey) continue;
+          this.introducePeer(status.swarmPublicKey);
+        } catch {
+          // El otro proceso aún no escucha.
+        }
+      }
+    };
+
+    void tick();
+    setInterval(() => {
+      void tick();
+    }, 3000);
   }
 
   private safeWrite(socket: SwarmSocket, payload: Buffer) {

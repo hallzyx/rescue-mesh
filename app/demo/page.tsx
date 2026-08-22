@@ -20,39 +20,51 @@ export default function DemoDirectorPage() {
 
   useEffect(() => {
     let active = true;
+    async function readStatus(base: string) {
+      const response = await fetch(`${base}/api/p2p/status`, { cache: "no-store" });
+      if (!response.ok) throw new Error(String(response.status));
+      return response.json() as Promise<{
+        peerId?: string;
+        swarmPublicKey?: string;
+        connectedCount?: number;
+      }>;
+    }
+
     async function refresh() {
-      try {
-        const status = await fetch(`${PEER_B_URL}/api/p2p/status`, { cache: "no-store" }).then(
-          (response) => response.json(),
-        );
-        if (!active) return;
-        setPeerB(status.peerId ?? "------");
-        setP2pConnected((status.connectedCount ?? 0) > 0);
-      } catch {
-        if (!active) return;
-        setPeerB("offline");
-      }
+      const [a, b, c] = await Promise.allSettled([
+        readStatus(PEER_A_URL),
+        readStatus(PEER_B_URL),
+        readStatus(PEER_C_URL),
+      ]);
 
-      try {
-        const status = await fetch(`${PEER_A_URL}/api/p2p/status`, { cache: "no-store" }).then(
-          (response) => response.json(),
-        );
-        if (!active) return;
-        setPeerA(status.peerId ?? "------");
-      } catch {
-        if (!active) return;
-        setPeerA("offline");
-      }
+      if (!active) return;
 
-      try {
-        const status = await fetch(`${PEER_C_URL}/api/p2p/status`, { cache: "no-store" }).then(
-          (response) => response.json(),
-        );
-        if (!active) return;
-        setPeerC(status.peerId ?? "------");
-      } catch {
-        if (!active) return;
-        setPeerC("offline");
+      const statusA = a.status === "fulfilled" ? a.value : null;
+      const statusB = b.status === "fulfilled" ? b.value : null;
+      const statusC = c.status === "fulfilled" ? c.value : null;
+
+      setPeerA(statusA?.peerId ?? "offline");
+      setPeerB(statusB?.peerId ?? "offline");
+      setPeerC(statusC?.peerId ?? "offline");
+      setP2pConnected((statusA?.connectedCount ?? 0) > 0 && (statusB?.connectedCount ?? 0) > 0);
+
+      if (
+        statusA?.swarmPublicKey &&
+        statusB?.swarmPublicKey &&
+        ((statusA.connectedCount ?? 0) === 0 || (statusB.connectedCount ?? 0) === 0)
+      ) {
+        await Promise.all([
+          fetch(`${PEER_A_URL}/api/p2p/introduce`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ publicKey: statusB.swarmPublicKey }),
+          }),
+          fetch(`${PEER_B_URL}/api/p2p/introduce`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ publicKey: statusA.swarmPublicKey }),
+          }),
+        ]).catch(() => undefined);
       }
     }
 

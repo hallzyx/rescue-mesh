@@ -20,9 +20,9 @@ npm run dev:peer-a
 npm run dev:peer-b
 ```
 
-1. Abre `/demo` en una tercera ventana o usa OBS para capturar A + B lado a lado.
-2. Espera **AI LOCAL ✓** (QVAC warmup completo).
-3. Verifica **P2P CONNECTED ✓** en ambas instancias (`?demo=1` activa tipografía grande).
+1. Abre [`http://127.0.0.1:43147/demo`](http://127.0.0.1:43147/demo). El director presenta A y B si el mesh aún no está armado.
+2. Espera **AI LOCAL ✓** y **P2P CONNECTED ✓**. No pulses grabar si ves `P2P ISOLATED` o Peer IDs `------` / `offline`.
+3. Desde el director: **Abrir Report Emergency** (A) y **Abrir Dashboard** (B), lado a lado, con `?demo=1`.
 
 ## Fallback sin Pear
 
@@ -54,7 +54,7 @@ Peer A (`/reporter/report?demo=1`):
 
 > Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.
 
-Pulsar **Usar ejemplo del demo** → **Enviar reporte**.
+Pulsar **Ejemplo EN (demo)** → **Enviar reporte**.
 
 ### Paso 3 — QVAC estructura
 
