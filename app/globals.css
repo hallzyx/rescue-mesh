@@ -128,3 +128,20 @@
     @apply font-sans;
   }
 }
+
+/* OBS / demo mode: larger type for 1080p recording */
+.demo-mode {
+  font-size: 1.0625rem;
+}
+
+.demo-mode .demo-title {
+  font-size: 2.25rem;
+}
+
+.demo-mode h2 {
+  font-size: 1.75rem;
+}
+
+.demo-mode h3 {
+  font-size: 1.25rem;
+}

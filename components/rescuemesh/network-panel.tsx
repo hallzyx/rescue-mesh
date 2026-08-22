@@ -41,6 +41,7 @@ export function NetworkPanel() {
             externalApi: false,
             sdkInstalled: false,
             modelLoaded: false,
+            warmupReady: false,
           }),
         ),
         fetchP2PStatus().catch(

@@ -1,15 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
-import {
-  compareIncidents,
-  SEED_INCIDENTS,
-  type Incident,
-  type IncidentStatus,
-} from "@/domain/incident";
+import { compareIncidents, SEED_INCIDENTS, type Incident, type IncidentStatus } from "@/domain/incident";
 import type { QvacExtraction } from "@/qvac/schema";
 import { mergeIncidentLists } from "@/p2p/merge";
 import { publishP2PIncident, pullP2PIncidents } from "@/p2p/client";
+import { pushSystemError } from "@/lib/system-errors";
 
 const STORAGE_KEY = "rescuemesh-incidents-v1";
 const SEEDED_KEY = "rescuemesh-seeded-v1";
@@ -41,6 +37,13 @@ function ensureSeed(): Incident[] {
     const parsed = JSON.parse(raw) as Incident[];
     return Array.isArray(parsed) ? parsed : SEED_INCIDENTS;
   } catch {
+    pushSystemError({
+      title: "Almacenamiento local dañado",
+      message:
+        "No se pudieron leer los incidentes guardados. Se restauró el estado inicial de demo.",
+      severity: "warning",
+    });
+    window.localStorage.removeItem(STORAGE_KEY);
     return SEED_INCIDENTS;
   }
 }
@@ -75,10 +78,18 @@ function createId(): string {
 }
 
 async function syncFromP2P() {
-  const remote = await pullP2PIncidents();
-  if (remote.length === 0) return;
-  const merged = mergeIncidentLists(getSnapshot(), remote);
-  writeIncidents(merged);
+  try {
+    const remote = await pullP2PIncidents();
+    if (remote.length === 0) return;
+    const merged = mergeIncidentLists(getSnapshot(), remote);
+    writeIncidents(merged);
+  } catch {
+    pushSystemError({
+      title: "Sincronización P2P interrumpida",
+      message: "Los incidentes locales siguen disponibles. El mesh se reintentará automáticamente.",
+      severity: "warning",
+    });
+  }
 }
 
 function startP2PSync() {

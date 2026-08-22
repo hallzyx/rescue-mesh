@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { buildIncident, useIncidents } from "@/lib/incident-store";
 import { getPeerId } from "@/lib/peer-session";
+import { pushSystemError } from "@/lib/system-errors";
 import { analyzeReport } from "@/qvac/client";
 import type { QvacExtraction } from "@/qvac/schema";
 
@@ -34,19 +35,29 @@ export default function ReportEmergencyPage() {
     if (trimmed.length < 12) return;
 
     setStep("analyzing");
-    const result = await analyzeReport(trimmed);
-    setProvider(result.provider);
+    try {
+      const result = await analyzeReport(trimmed);
+      setProvider(result.provider);
 
-    if (result.ok) {
-      setExtraction(result.extraction);
-      setIssues([]);
-      setStep("preview");
-      return;
+      if (result.ok) {
+        setExtraction(result.extraction);
+        setIssues([]);
+        setStep("preview");
+        return;
+      }
+
+      setIssues(result.issues);
+      setExtraction(null);
+      setStep("manual");
+    } catch {
+      pushSystemError({
+        title: "QVAC no disponible",
+        message: "El análisis local falló. Puedes completar el incidente manualmente.",
+        severity: "error",
+      });
+      setIssues([{ field: "qvac", message: "Error inesperado durante el análisis." }]);
+      setStep("manual");
     }
-
-    setIssues(result.issues);
-    setExtraction(null);
-    setStep("manual");
   }
 
   function persistIncident(data: QvacExtraction) {
@@ -192,7 +203,7 @@ export default function ReportEmergencyPage() {
           <CardContent className="space-y-4 py-10 text-center">
             <p className="text-lg font-medium text-slate-100">Incidente guardado localmente</p>
             <p className="text-sm text-slate-400">
-              ID: <span className="font-mono text-slate-300">{savedId}</span> · syncStatus: local
+              ID: <span className="font-mono text-slate-300">{savedId}</span> · replicando vía P2P
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               <Button variant="outline" className="border-slate-700" onClick={resetFlow}>

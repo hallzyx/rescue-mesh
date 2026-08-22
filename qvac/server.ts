@@ -6,6 +6,11 @@ import type { QvacExtraction, QvacProvider } from "./schema";
 let cachedModelId: string | null = null;
 let sdkChecked = false;
 let sdkAvailable = false;
+let warmupComplete = false;
+let warmupInFlight: Promise<{ ready: boolean; error?: string }> | null = null;
+
+const WARMUP_REPORT =
+  "Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.";
 
 type QvacSdkModule = {
   completion: (options: {
@@ -103,6 +108,7 @@ export async function getQvacRuntimeStatus(): Promise<{
   externalApi: false;
   sdkInstalled: boolean;
   modelLoaded: boolean;
+  warmupReady: boolean;
 }> {
   const sdkInstalled = await canUseQvacSdk();
   return {
@@ -110,5 +116,39 @@ export async function getQvacRuntimeStatus(): Promise<{
     externalApi: false,
     sdkInstalled,
     modelLoaded: Boolean(cachedModelId),
+    warmupReady: warmupComplete,
   };
+}
+
+export async function warmupQvac(): Promise<{ ready: boolean; error?: string }> {
+  if (warmupComplete) return { ready: true };
+  if (warmupInFlight) return warmupInFlight;
+
+  warmupInFlight = (async () => {
+    try {
+      if (await canUseQvacSdk()) {
+        try {
+          await completeWithQvacSdk(WARMUP_REPORT);
+        } catch (error) {
+          console.error("[QVAC warmup] SDK falló, usando local-engine.", error);
+          analyzeWithLocalEngine(WARMUP_REPORT);
+        }
+      } else {
+        analyzeWithLocalEngine(WARMUP_REPORT);
+      }
+      warmupComplete = true;
+      return { ready: true };
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo precalentar QVAC.";
+      console.error("[QVAC warmup]", message);
+      analyzeWithLocalEngine(WARMUP_REPORT);
+      warmupComplete = true;
+      return { ready: true, error: message };
+    } finally {
+      warmupInFlight = null;
+    }
+  })();
+
+  return warmupInFlight;
 }

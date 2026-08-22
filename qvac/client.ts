@@ -66,6 +66,7 @@ export type QvacRuntimeStatus = {
   externalApi: false;
   sdkInstalled: boolean;
   modelLoaded: boolean;
+  warmupReady: boolean;
 };
 
 export async function fetchQvacStatus(): Promise<QvacRuntimeStatus> {
@@ -76,7 +77,16 @@ export async function fetchQvacStatus(): Promise<QvacRuntimeStatus> {
       externalApi: false,
       sdkInstalled: false,
       modelLoaded: false,
+      warmupReady: false,
     };
   }
   return response.json() as Promise<QvacRuntimeStatus>;
+}
+
+export async function warmupQvac(): Promise<{ ready: boolean; error?: string }> {
+  const response = await fetch("/api/qvac/warmup", { method: "POST" });
+  if (!response.ok) {
+    return { ready: false, error: "No se pudo precalentar QVAC." };
+  }
+  return response.json() as Promise<{ ready: boolean; error?: string }>;
 }
