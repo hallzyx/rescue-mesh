@@ -2,6 +2,15 @@
 
 Pantalla de control: [`/demo`](http://127.0.0.1:43147/demo)
 
+## Test automático del guion
+
+```bash
+npm run test:demo
+```
+
+Recorre los 7 pasos del PRD en Chromium (misma instancia = Local Crisis Intelligence Copilot).  
+Si además está corriendo `npm run dev:peer-b`, valida que Peer B reciba el incidente por P2P.
+
 ## Preparación (antes de grabar)
 
 ```bash

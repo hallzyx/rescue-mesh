@@ -13,6 +13,7 @@
     "test": "playwright test",
     "test:smoke": "playwright test --project=smoke",
     "test:e2e": "playwright test --project=e2e",
+    "test:demo": "playwright test --project=demo",
     "verify": "npm run build && npm run lint && npm run test",
     "verify:demo": "node scripts/verify-demo.mjs"
   },

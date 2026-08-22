@@ -34,5 +34,11 @@ export default defineConfig({
       testMatch: /e2e\/.*\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
+    {
+      name: "demo",
+      testMatch: /demo\/.*\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+      timeout: 90_000,
+    },
   ],
 });
