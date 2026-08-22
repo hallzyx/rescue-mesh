@@ -10,7 +10,17 @@ const nextConfig: NextConfig = {
     "http://127.0.0.1:43148",
     "http://127.0.0.1:43149",
   ],
-  serverExternalPackages: ["corestore", "hyperswarm", "hyperbee"],
+  serverExternalPackages: [
+    "corestore",
+    "hyperswarm",
+    "hyperbee",
+    "hypercore",
+    "hyperdht",
+    "rocksdb-native",
+    "udx-native",
+    "sodium-native",
+    "require-addon",
+  ],
 };
 
 export default nextConfig;

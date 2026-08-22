@@ -1,17 +1,20 @@
+import { createRequire } from "node:module";
 import crypto from "crypto";
 import fs from "fs";
+import net from "net";
 import path from "path";
-import Corestore from "corestore";
-import Hyperswarm from "hyperswarm";
-import Hyperbee from "hyperbee";
+import type Corestore from "corestore";
+import type Hyperswarm from "hyperswarm";
+import type Hyperbee from "hyperbee";
 import type { Incident } from "@/domain/incident";
 import { shortPeerId, type P2PDiagnostics, type PeerConnectionInfo } from "./diagnostics";
 import { mergeIncidents } from "./merge";
 import { createMessageDecoder, encodeMessage, type P2PHello, type P2PMessage } from "./messages";
+import { p2pHostAdapter, p2pHostUrl } from "./host-client";
 
 const NETWORK_TOPIC = crypto.createHash("sha256").update("rescuemesh-coordination-v1").digest();
 
-const LOCAL_PEER_URLS = [
+const DEFAULT_PEER_URLS = [
   "http://127.0.0.1:43147",
   "http://127.0.0.1:43148",
   "http://127.0.0.1:43149",
@@ -29,6 +32,36 @@ type PeerServiceGlobal = {
   __rescuemeshPeerServiceInit?: Promise<RescueMeshPeerService>;
 };
 
+function peerHttpUrls(): string[] {
+  const raw = process.env.RESCUEMESH_PEER_URLS?.trim();
+  if (!raw) return DEFAULT_PEER_URLS;
+  return raw
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function meshListenPort(): number | null {
+  const raw = process.env.RESCUEMESH_MESH_LISTEN?.trim();
+  if (!raw) return null;
+  const port = Number(raw);
+  return Number.isInteger(port) && port > 0 ? port : null;
+}
+
+function meshPeerTargets(): { host: string; port: number; key: string }[] {
+  const raw = process.env.RESCUEMESH_MESH_PEERS?.trim();
+  if (!raw) return [];
+  return raw
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((key) => {
+      const [host, portRaw] = key.split(":");
+      return { host, port: Number(portRaw), key };
+    })
+    .filter((target) => target.host && Number.isInteger(target.port) && target.port > 0);
+}
+
 class RescueMeshPeerService {
   private store: Corestore;
   private core: ReturnType<Corestore["get"]>;
@@ -41,21 +74,40 @@ class RescueMeshPeerService {
   private coreKey = "";
   private peers = new Map<string, PeerConnectionInfo>();
   private started = false;
+  private directSockets = new Set<SwarmSocket>();
+  private meshConnected = new Set<string>();
+  private meshPending = new Set<string>();
 
-  private constructor(storagePath: string) {
+  private constructor(
+    storagePath: string,
+    CorestoreCtor: typeof import("corestore").default,
+    HyperswarmCtor: typeof import("hyperswarm").default,
+    HyperbeeCtor: typeof import("hyperbee").default,
+  ) {
     this.storagePath = storagePath;
     fs.mkdirSync(storagePath, { recursive: true });
-    this.store = new Corestore(storagePath);
+    this.store = new CorestoreCtor(storagePath);
     this.core = this.store.get({ name: "incidents" });
-    this.bee = new Hyperbee(this.core, {
+    this.bee = new HyperbeeCtor(this.core, {
       keyEncoding: "utf-8",
       valueEncoding: "json",
     });
-    this.swarm = new Hyperswarm();
+    this.swarm = new HyperswarmCtor();
   }
 
   static async create(storagePath: string): Promise<RescueMeshPeerService> {
-    const service = new RescueMeshPeerService(storagePath);
+    const loaderPath = path.join(process.cwd(), "p2p", "load-pear.cjs");
+    const pear = createRequire(loaderPath)(loaderPath) as {
+      Corestore: typeof import("corestore").default;
+      Hyperswarm: typeof import("hyperswarm").default;
+      Hyperbee: typeof import("hyperbee").default;
+    };
+    const service = new RescueMeshPeerService(
+      storagePath,
+      pear.Corestore,
+      pear.Hyperswarm,
+      pear.Hyperbee,
+    );
     await service.init();
     return service;
   }
@@ -68,54 +120,117 @@ class RescueMeshPeerService {
     this.peerId = shortPeerId(this.publicKey);
 
     this.swarm.on("connection", (socket: SwarmSocket) => {
-      let remoteKey: string | null = null;
-      const decode = createMessageDecoder((message: P2PMessage) => {
-        if (message.type === "hello") {
-          remoteKey = message.publicKey;
-          this.handleHello(message, socket);
-          return;
-        }
-        if (message.type === "upsert") {
-          void this.ingestRemoteIncident(message.incident);
-        }
-      });
-
-      socket.on("data", decode);
-      socket.on("close", () => {
-        if (!remoteKey) return;
-        const existing = this.peers.get(remoteKey);
-        if (existing) {
-          this.peers.set(remoteKey, { ...existing, status: "disconnected" });
-        }
-      });
-      socket.on("error", () => {
-        if (!remoteKey) return;
-        const existing = this.peers.get(remoteKey);
-        if (existing) {
-          this.peers.set(remoteKey, { ...existing, status: "disconnected" });
-        }
-      });
-
-      const hello: P2PHello = {
-        type: "hello",
-        peerId: this.peerId,
-        publicKey: this.publicKey,
-        coreKey: this.coreKey,
-      };
-      this.safeWrite(socket, encodeMessage(hello));
+      this.wireSocket(socket);
     });
 
     this.swarm.join(NETWORK_TOPIC, { server: true, client: true });
-    await this.swarm.flush();
+    void this.swarm.flush().catch((error) => {
+      console.error("[p2p] swarm flush", error);
+    });
     this.started = true;
+    this.startDirectMesh();
     this.startLocalIntroduction();
   }
 
-  /** Presenta peers locales (misma laptop, puertos de demo). No es un backend central. */
+  private wireSocket(socket: SwarmSocket, onGone?: () => void) {
+    let remoteKey: string | null = null;
+    let gone = false;
+    const decode = createMessageDecoder((message: P2PMessage) => {
+      if (message.type === "hello") {
+        remoteKey = message.publicKey;
+        this.handleHello(message, socket);
+        return;
+      }
+      if (message.type === "upsert") {
+        void this.ingestRemoteIncident(message.incident);
+      }
+    });
+
+    const finish = () => {
+      if (gone) return;
+      gone = true;
+      if (remoteKey) {
+        const existing = this.peers.get(remoteKey);
+        if (existing) {
+          this.peers.set(remoteKey, { ...existing, status: "disconnected" });
+        }
+      }
+      onGone?.();
+    };
+
+    socket.on("data", decode);
+    socket.on("close", finish);
+    socket.on("error", finish);
+
+    const hello: P2PHello = {
+      type: "hello",
+      peerId: this.peerId,
+      publicKey: this.publicKey,
+      coreKey: this.coreKey,
+    };
+    this.safeWrite(socket, encodeMessage(hello));
+  }
+
+  /**
+   * Mesh TCP explícito para Docker Compose (DNS interno).
+   * No es un backend central: cada peer habla con sus vecinos.
+   */
+  private startDirectMesh() {
+    const listen = meshListenPort();
+    if (listen) {
+      const server = net.createServer((socket) => {
+        socket.setKeepAlive(true);
+        this.directSockets.add(socket);
+        this.wireSocket(socket, () => {
+          this.directSockets.delete(socket);
+        });
+      });
+      server.on("error", (error) => {
+        console.error("[p2p] mesh listen failed", error);
+      });
+      server.listen(listen, "0.0.0.0");
+    }
+
+    const targets = meshPeerTargets();
+    if (targets.length === 0) return;
+
+    const tick = () => {
+      for (const target of targets) {
+        this.connectMeshPeer(target);
+      }
+    };
+    tick();
+    setInterval(tick, 3000);
+  }
+
+  private connectMeshPeer(target: { host: string; port: number; key: string }) {
+    if (this.meshConnected.has(target.key) || this.meshPending.has(target.key)) return;
+
+    this.meshPending.add(target.key);
+    const socket = net.connect({ host: target.host, port: target.port });
+    socket.setKeepAlive(true);
+
+    socket.on("connect", () => {
+      this.meshPending.delete(target.key);
+      this.meshConnected.add(target.key);
+      this.directSockets.add(socket);
+      this.wireSocket(socket, () => {
+        this.directSockets.delete(socket);
+        this.meshConnected.delete(target.key);
+      });
+    });
+
+    socket.on("error", () => {
+      this.meshPending.delete(target.key);
+      socket.destroy();
+    });
+  }
+
+  /** Presenta peers locales (misma laptop o red Compose). No es un backend central. */
   private startLocalIntroduction() {
     const tick = async () => {
       if (this.getConnectedCount() > 0) return;
-      for (const base of LOCAL_PEER_URLS) {
+      for (const base of peerHttpUrls()) {
         try {
           const response = await fetch(`${base}/api/p2p/status`, {
             signal: AbortSignal.timeout(800),
@@ -192,6 +307,9 @@ class RescueMeshPeerService {
     for (const connection of this.swarm.connections) {
       this.safeWrite(connection, payload);
     }
+    for (const socket of this.directSockets) {
+      this.safeWrite(socket, payload);
+    }
   }
 
   private async readBee(): Promise<Incident[]> {
@@ -215,7 +333,11 @@ class RescueMeshPeerService {
   }
 
   getConnectedCount(): number {
-    return this.swarm.connections.size;
+    let direct = 0;
+    for (const socket of this.directSockets) {
+      if (!socket.destroyed) direct += 1;
+    }
+    return this.swarm.connections.size + direct;
   }
 
   getDiagnostics(): P2PDiagnostics {
@@ -248,7 +370,11 @@ function getStoragePath(): string {
   return path.resolve(process.cwd(), ".p2p-data");
 }
 
-export async function getPeerService(): Promise<RescueMeshPeerService> {
+export async function getPeerService(): Promise<RescueMeshPeerService | typeof p2pHostAdapter> {
+  if (p2pHostUrl()) {
+    return p2pHostAdapter;
+  }
+
   const globalScope = globalThis as PeerServiceGlobal;
   if (globalScope.__rescuemeshPeerService) {
     return globalScope.__rescuemeshPeerService;

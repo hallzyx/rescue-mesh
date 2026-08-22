@@ -28,8 +28,10 @@ declare module "hyperswarm" {
 
   export default class Hyperswarm {
     connections: Set<SwarmSocket>;
+    keyPair: { publicKey: Buffer; secretKey: Buffer };
     on(event: "connection", listener: (socket: SwarmSocket) => void): void;
     join(topic: Buffer, opts?: { server?: boolean; client?: boolean }): void;
+    joinPeer(publicKey: Buffer): void;
     flush(): Promise<void>;
   }
 }

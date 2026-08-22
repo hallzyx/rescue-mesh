@@ -9,5 +9,5 @@ export async function OPTIONS(request: Request) {
 
 export async function GET(request: Request) {
   const peer = await getPeerService();
-  return jsonWithCors(request, peer.getDiagnostics());
+  return jsonWithCors(request, await peer.getDiagnostics());
 }

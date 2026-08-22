@@ -13,6 +13,12 @@ Levanta Peer A (`:43147`) y Peer B (`:43148`) si no están arriba, recorre los 7
 ## Preparación (antes de grabar)
 
 ```bash
+docker compose up --build
+```
+
+O, sin Docker:
+
+```bash
 # Terminal A — Reporter
 npm run dev:peer-a
 

@@ -15,7 +15,10 @@
     "test:e2e": "playwright test --project=e2e",
     "test:demo": "playwright test --config=playwright.demo.config.ts",
     "verify": "npm run build && npm run lint && npm run test",
-    "verify:demo": "node scripts/verify-demo.mjs"
+    "verify:demo": "node scripts/verify-demo.mjs",
+    "compose": "docker compose up --build",
+    "compose:up": "docker compose up --build -d",
+    "compose:down": "docker compose down"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

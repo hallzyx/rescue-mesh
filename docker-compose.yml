@@ -1,0 +1,107 @@
+# Tres peers en la misma laptop (puertos 43147–43149).
+# network_mode: host = el navegador y el mesh usan 127.0.0.1, igual que `npm run dev:peer-*`.
+# En Linux funciona tal cual. En Docker Desktop (Mac/Windows) usa el override de bridge
+# o corre los peers con npm si el host network no expone localhost.
+
+services:
+  peer-a:
+    build: .
+    image: rescuemesh:local
+    container_name: rescuemesh-peer-a
+    network_mode: host
+    environment:
+      PORT: "43147"
+      HOSTNAME: "0.0.0.0"
+      RESCUEMESH_P2P_HOST: http://127.0.0.1:43700
+      RESCUEMESH_P2P_HOST_PORT: "43700"
+      RESCUEMESH_INSTANCE_LABEL: Citizen
+      RESCUEMESH_P2P_STORAGE: /data/p2p
+      RESCUEMESH_PEER_URLS: http://127.0.0.1:43147,http://127.0.0.1:43148,http://127.0.0.1:43149
+      RESCUEMESH_MESH_LISTEN: "49737"
+      RESCUEMESH_MESH_PEERS: 127.0.0.1:49738,127.0.0.1:49739
+    volumes:
+      - peer-a-data:/data/p2p
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:43147/api/p2p/status').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 18
+      start_period: 25s
+    restart: unless-stopped
+
+  peer-b:
+    build: .
+    image: rescuemesh:local
+    container_name: rescuemesh-peer-b
+    network_mode: host
+    depends_on:
+      - peer-a
+    environment:
+      PORT: "43148"
+      HOSTNAME: "0.0.0.0"
+      RESCUEMESH_P2P_HOST: http://127.0.0.1:43701
+      RESCUEMESH_P2P_HOST_PORT: "43701"
+      RESCUEMESH_INSTANCE_LABEL: Brigade
+      RESCUEMESH_P2P_STORAGE: /data/p2p
+      RESCUEMESH_PEER_URLS: http://127.0.0.1:43147,http://127.0.0.1:43148,http://127.0.0.1:43149
+      RESCUEMESH_MESH_LISTEN: "49738"
+      RESCUEMESH_MESH_PEERS: 127.0.0.1:49737,127.0.0.1:49739
+    volumes:
+      - peer-b-data:/data/p2p
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:43148/api/p2p/status').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 18
+      start_period: 25s
+    restart: unless-stopped
+
+  peer-c:
+    build: .
+    image: rescuemesh:local
+    container_name: rescuemesh-peer-c
+    network_mode: host
+    depends_on:
+      - peer-a
+    environment:
+      PORT: "43149"
+      HOSTNAME: "0.0.0.0"
+      RESCUEMESH_P2P_HOST: http://127.0.0.1:43702
+      RESCUEMESH_P2P_HOST_PORT: "43702"
+      RESCUEMESH_INSTANCE_LABEL: Command Center
+      RESCUEMESH_P2P_STORAGE: /data/p2p
+      RESCUEMESH_PEER_URLS: http://127.0.0.1:43147,http://127.0.0.1:43148,http://127.0.0.1:43149
+      RESCUEMESH_MESH_LISTEN: "49739"
+      RESCUEMESH_MESH_PEERS: 127.0.0.1:49737,127.0.0.1:49738
+    volumes:
+      - peer-c-data:/data/p2p
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:43149/api/p2p/status').then((r)=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 18
+      start_period: 25s
+    restart: unless-stopped
+
+volumes:
+  peer-a-data:
+  peer-b-data:
+  peer-c-data:

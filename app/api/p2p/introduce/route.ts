@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    peer.introducePeer(body.publicKey);
+    await peer.introducePeer(body.publicKey);
   } catch (error) {
     const message = error instanceof Error ? error.message : "No se pudo introducir el peer.";
     return jsonWithCors(request, { error: message }, { status: 400 });

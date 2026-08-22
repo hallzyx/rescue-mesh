@@ -25,20 +25,36 @@ Fuente de verdad: [`docs/PRD.md`](./docs/PRD.md) · Plan: [`PLAN.md`](./PLAN.md)
 
 ## Cómo correrlo
 
+### Docker Compose (demo A + B + C)
+
+```bash
+docker compose up --build
+```
+
+Tres peers en la misma laptop (`network_mode: host`), stores separados, mesh TCP en 127.0.0.1:
+
+| Servicio | Rol | URL |
+|----------|-----|-----|
+| `peer-a` | Citizen / Reporter | http://127.0.0.1:43147 |
+| `peer-b` | Brigade / Responder | http://127.0.0.1:43148 |
+| `peer-c` | Command Center | http://127.0.0.1:43149 |
+
+Director OBS: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
+
+Libera esos puertos antes (`npm run compose:down` o para los `next dev` locales).
+
+### Sin Docker
+
 ```bash
 npm install
 npm run dev
 ```
-
-### Demo P2P (3 peers)
 
 ```bash
 npm run dev:peer-a   # Citizen / Reporter — 43147
 npm run dev:peer-b   # Brigade / Responder — 43148
 npm run dev:peer-c   # Command Center — 43149
 ```
-
-Director OBS: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
 
 ## Rutas clave
 
