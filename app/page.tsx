@@ -1,5 +1,5 @@
-import { PlanApp } from "@/components/plan-app";
+import { RolePicker } from "@/components/rescuemesh/role-picker";
 
-export default function Home() {
-  return <PlanApp />;
+export default function HomePage() {
+  return <RolePicker />;
 }

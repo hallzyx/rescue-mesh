@@ -1,36 +1,39 @@
-# RescueMesh — Plan de implementación
+# RescueMesh
 
-Tablero del plan de acción para construir el **MVP de RescueMesh** según el PRD.
-
-RescueMesh convierte reportes humanos desordenados en incidentes estructurados y priorizados, con **QVAC local** y, en una segunda fase, **replicación Pear**. No reemplaza WhatsApp. No afirma funcionar sin ningún canal físico.
+Red descentralizada de coordinación para emergencias. Convierte reportes humanos en incidentes estructurados y priorizados, con **QVAC local** y replicación **Pear** (Fases 1–2).
 
 > WhatsApp communicates. RescueMesh coordinates.
 
-Este repo es el plan, no el producto. La fuente de verdad del alcance es [`docs/PRD.md`](./docs/PRD.md).
+Fuente de verdad del alcance: [`docs/PRD.md`](./docs/PRD.md)  
+Plan de implementación: [`PLAN.md`](./PLAN.md) · tablero interactivo en `/plan`
 
-## Cómo usarlo
+## Estado actual
+
+**Fase 0 — Skeleton** implementada:
+
+- Selector de rol (Reporter / Responder) sin autenticación
+- Navegación del Reporter: Inicio, Report Emergency, My Reports, Network
+- Dashboard del Responder con Situation Overview e incidentes seed
+- Detalle de incidente con Acknowledge / Start response / Resolve
+- Tipo `Incident` en `domain/incident.ts`
+- UI sobria, alto contraste, orientada a emergencias
+
+**Siguiente:** Fase 1 — QVAC Crisis Copilot (texto → JSON → persistencia real).
+
+## Cómo correrlo
 
 ```bash
 npm install
 npm run dev
 ```
 
-La app queda en [http://127.0.0.1:43147](http://127.0.0.1:43147).
+Abre [http://127.0.0.1:43147](http://127.0.0.1:43147).
 
-Marca tareas a medida que las cierres. El avance se guarda en el navegador.
+- `/` — elegir rol
+- `/reporter` — flujo del afectado
+- `/responder` — cuadro operacional
+- `/plan` — tablero del plan de implementación
 
-La versión en Markdown está en [`PLAN.md`](./PLAN.md).
+## Stack
 
-## Orden obligatorio (PRD §27)
-
-0. **Skeleton** — UI, roles, incidente fake, dashboard.
-1. **QVAC Crisis Copilot** — texto → QVAC local → JSON → persistencia → dashboard. Submission QVAC + General.
-2. **Pear / RescueMesh** — dos peers, sync de incidentes y estados. Submission QVAC + Pears + General.
-3. **Demo Reliability** — modelo precargado, errores, OBS, ensayo de 7 pasos.
-4. **Stretch** — audio, traducción, deduplicación, tercer peer. Solo si el núcleo ya funciona.
-
-Si Pear no llega, no se cancela: se presenta el copilot local.
-
-## Stack de este tablero
-
-Next.js, TypeScript, Tailwind CSS y shadcn/ui. Sin backend.
+Next.js, TypeScript, Tailwind CSS, shadcn/ui. Desktop MVP. Sin backend central.

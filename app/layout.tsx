@@ -14,18 +14,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RescueMesh — Plan de implementación",
+  title: "RescueMesh",
   description:
-    "Plan de acción del MVP de RescueMesh: QVAC local, persistencia por peer y replicación Pear, según el PRD.",
+    "Red descentralizada de coordinación para emergencias. QVAC local y replicación Pear.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="flex min-h-full flex-col bg-slate-950 text-slate-100">
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
