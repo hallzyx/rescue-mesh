@@ -12,6 +12,7 @@ const SEEDED_KEY = "rescuemesh-seeded-v1";
 
 const listeners = new Set<() => void>();
 let snapshot: Incident[] = SEED_INCIDENTS;
+let hydrated = false;
 let syncStarted = false;
 let lastP2PErrorAt = 0;
 
@@ -50,8 +51,9 @@ function readIncidents(): Incident[] {
 }
 
 function getSnapshot(): Incident[] {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && !hydrated) {
     snapshot = readIncidents();
+    hydrated = true;
   }
   return snapshot;
 }

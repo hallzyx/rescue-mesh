@@ -63,6 +63,7 @@ export default function ReporterHomePage() {
                     : "w-full border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
                 }
                 variant={action.primary ? "default" : "outline"}
+                aria-label={`Abrir ${action.title}`}
                 render={<Link href={action.href} />}
               >
                 Abrir

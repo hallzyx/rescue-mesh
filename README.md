@@ -49,6 +49,17 @@ Director OBS: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
 | `/reporter/report` | Texto o dictado → QVAC |
 | `/responder` | Dashboard + deduplicación |
 
+## Tests
+
+```bash
+npx playwright install chromium   # una vez
+npm run test:smoke                # APIs + páginas (HTTP)
+npm run test:e2e                  # flujo Reporter → QVAC → Responder
+npm test                          # smoke + e2e
+```
+
+Si no hay servidor, Playwright levanta `npm run dev` en el puerto 43147. Si ya corre, lo reutiliza.
+
 ## Stack
 
 Next.js, TypeScript, Tailwind, shadcn/ui, QVAC local, Pear (Hyperswarm, Corestore, Hyperbee). Sin backend central.
