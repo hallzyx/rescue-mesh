@@ -99,25 +99,24 @@ function extractLocation(text: string): string | undefined {
 function extractCount(text: string, patterns: RegExp[]): number {
   for (const pattern of patterns) {
     const match = text.match(pattern);
-    if (match?.[1]) {
-      const words: Record<string, number> = {
-        one: 1,
-        two: 2,
-        three: 3,
-        four: 4,
-        five: 5,
-        uno: 1,
-        una: 1,
-        dos: 2,
-        tres: 3,
-        cuatro: 4,
-        cinco: 5,
-      };
-      const token = match[1].toLowerCase();
-      if (words[token] !== undefined) return words[token];
-      const num = Number(token);
-      if (Number.isFinite(num)) return Math.max(0, Math.floor(num));
-    }
+    if (!match) continue;
+    const token = (match[1] ?? "one").toLowerCase();
+    const words: Record<string, number> = {
+      one: 1,
+      two: 2,
+      three: 3,
+      four: 4,
+      five: 5,
+      uno: 1,
+      una: 1,
+      dos: 2,
+      tres: 3,
+      cuatro: 4,
+      cinco: 5,
+    };
+    if (words[token] !== undefined) return words[token];
+    const num = Number(token);
+    if (Number.isFinite(num)) return Math.max(0, Math.floor(num));
   }
   return 0;
 }
@@ -137,7 +136,8 @@ export function analyzeWithLocalEngine(rawReport: string) {
   const trappedPeople = extractCount(text, [
     /(\d+|one|two|three|four|five|uno|dos|tres)\s+(?:people\s+)?(?:are\s+)?trapped/i,
     /(\d+|one|two|three|four|five|uno|dos|tres)\s+personas?\s+atrapad/i,
-    /one person is trapped/i,
+    /(?:one|\d+)\s+person is trapped/i,
+    /una persona est[aá] atrapada/i,
   ]);
   const affectedPeople = extractCount(text, [
     /(\d+|one|two|three|four|five|twelve|uno|dos|tres|doce)\s+(?:of us|people|personas|familias)/i,
