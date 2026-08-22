@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 import {
   compareIncidents,
   SEED_INCIDENTS,
@@ -8,12 +8,15 @@ import {
   type IncidentStatus,
 } from "@/domain/incident";
 import type { QvacExtraction } from "@/qvac/schema";
+import { mergeIncidentLists } from "@/p2p/merge";
+import { publishP2PIncident, pullP2PIncidents } from "@/p2p/client";
 
 const STORAGE_KEY = "rescuemesh-incidents-v1";
 const SEEDED_KEY = "rescuemesh-seeded-v1";
 
 const listeners = new Set<() => void>();
 let snapshot: Incident[] = SEED_INCIDENTS;
+let syncStarted = false;
 
 function emit() {
   listeners.forEach((listener) => listener());
@@ -71,6 +74,22 @@ function createId(): string {
   return `inc-${Date.now().toString(36)}`;
 }
 
+async function syncFromP2P() {
+  const remote = await pullP2PIncidents();
+  if (remote.length === 0) return;
+  const merged = mergeIncidentLists(getSnapshot(), remote);
+  writeIncidents(merged);
+}
+
+function startP2PSync() {
+  if (syncStarted || typeof window === "undefined") return;
+  syncStarted = true;
+  void syncFromP2P();
+  window.setInterval(() => {
+    void syncFromP2P();
+  }, 2000);
+}
+
 export function buildIncident({
   rawReport,
   createdByPeerId,
@@ -93,12 +112,16 @@ export function buildIncident({
     medicalEmergency: extraction.medicalEmergency,
     needs: extraction.needs,
     summary: extraction.summary,
-    syncStatus: "local",
+    syncStatus: "pending",
   };
 }
 
 export function useIncidents() {
   const incidents = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  useEffect(() => {
+    startP2PSync();
+  }, []);
 
   const sorted = useMemo(() => [...incidents].sort(compareIncidents), [incidents]);
 
@@ -107,10 +130,29 @@ export function useIncidents() {
       incident.id === id ? { ...incident, status } : incident,
     );
     writeIncidents(next);
+    const updated = next.find((incident) => incident.id === id);
+    if (updated) {
+      void publishP2PIncident(updated).then((saved) => {
+        if (!saved) return;
+        const synced = getSnapshot().map((incident) =>
+          incident.id === saved.id ? saved : incident,
+        );
+        writeIncidents(synced);
+      });
+    }
   }, []);
 
   const addIncident = useCallback((incident: Incident) => {
     writeIncidents([incident, ...getSnapshot()]);
+    void publishP2PIncident(incident).then((saved) => {
+      if (!saved) return;
+      const synced = getSnapshot().map((item) => (item.id === saved.id ? saved : item));
+      if (!synced.some((item) => item.id === saved.id)) {
+        writeIncidents([saved, ...synced]);
+        return;
+      }
+      writeIncidents(synced);
+    });
   }, []);
 
   const getById = useCallback(

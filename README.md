@@ -1,6 +1,6 @@
 # RescueMesh
 
-Red descentralizada de coordinación para emergencias. Convierte reportes humanos en incidentes estructurados y priorizados, con **QVAC local** y replicación **Pear** (Fase 2).
+Red descentralizada de coordinación para emergencias. Convierte reportes humanos en incidentes estructurados y priorizados, con **QVAC local** y replicación **Pear** (Hyperswarm + Corestore + Hyperbee).
 
 > WhatsApp communicates. RescueMesh coordinates.
 
@@ -9,25 +9,17 @@ Plan de implementación: [`PLAN.md`](./PLAN.md) · tablero interactivo en `/plan
 
 ## Estado actual
 
-**Fase 0 — Skeleton** implementada:
+**Fase 0 — Skeleton** ✅  
+**Fase 1 — QVAC Crisis Copilot** ✅  
+**Fase 2 — Pear / P2P** ✅
 
-- Selector de rol (Reporter / Responder) sin autenticación
-- Navegación del Reporter: Inicio, Report Emergency, My Reports, Network
-- Dashboard del Responder con Situation Overview e incidentes seed
-- Detalle de incidente con Acknowledge / Start response / Resolve
-- Tipo `Incident` en `domain/incident.ts`
-- UI sobria, alto contraste, orientada a emergencias
+- Mesh P2P con **Hyperswarm** (discovery) + **Corestore/Hyperbee** (replicación Pear)
+- Cada instancia tiene storage independiente (`.p2p-data-a`, `.p2p-data-b`)
+- Creación y cambios de estado de incidentes se replican entre peers
+- Panel Network con peers conectados reales, QVAC runtime y `Central backend: NONE`
+- Sin peers: estado **ISOLATED**, reportes con `syncStatus: pending`
 
-**Fase 1 — QVAC Crisis Copilot** implementada:
-
-- Reporte en texto libre → análisis local (`/api/qvac/analyze`)
-- Motor local con fallback (`qvac/local-engine.ts`) si `@qvac/sdk` no está instalado
-- Validación estricta de JSON (`qvac/schema.ts`) con reintento automático
-- Revisión manual si el JSON falla tras el reintento
-- Persistencia real en `localStorage` → visible en My Reports y dashboard del Responder
-- Panel de red con estado runtime de QVAC (`/api/qvac/status`)
-
-**Siguiente:** Fase 2 — Pear / P2P (replicación entre peers).
+**Siguiente:** Fase 3 — Demo Reliability (precarga QVAC, guion OBS, fallbacks visibles).
 
 ## Cómo correrlo
 
@@ -38,19 +30,32 @@ npm run dev
 
 Abre [http://127.0.0.1:43147](http://127.0.0.1:43147).
 
+### Demo P2P (dos peers en una laptop)
+
+Terminal A — Reporter:
+
+```bash
+npm run dev:peer-a
+```
+
+Terminal B — Responder:
+
+```bash
+npm run dev:peer-b
+```
+
+1. En A: `/reporter/report` → envía el ejemplo Av. Grau 120 → confirma.
+2. En B: `/responder` → el incidente aparece tras sincronización P2P.
+3. En B: Acknowledge / Start response / Resolve → A recibe el cambio de estado.
+4. Cierra A: B conserva el incidente.
+
+Rutas:
+
 - `/` — elegir rol
-- `/reporter` — flujo del afectado
 - `/reporter/report` — enviar reporte con QVAC local
 - `/responder` — cuadro operacional
-- `/plan` — tablero del plan de implementación
-
-### Demo rápida (Fase 1)
-
-1. Abre `/reporter/report` y pega el ejemplo de Av. Grau 120.
-2. Espera “Analyzing locally…”.
-3. Confirma el incidente estructurado (CRITICAL, rescue + medical).
-4. Abre `/responder` en la misma instancia: el incidente aparece en el dashboard.
+- `/reporter/network` o `/responder/network` — diagnóstico P2P + QVAC
 
 ## Stack
 
-Next.js, TypeScript, Tailwind CSS, shadcn/ui. Desktop MVP. Sin backend central.
+Next.js, TypeScript, Tailwind CSS, shadcn/ui, QVAC (local), Pear ecosystem (Hyperswarm, Corestore, Hyperbee). Desktop MVP. Sin backend central.

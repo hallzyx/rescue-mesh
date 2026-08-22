@@ -4,14 +4,20 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 43147",
+    "dev:peer-a": "RESCUEMESH_P2P_STORAGE=.p2p-data-a next dev --port 43147",
+    "dev:peer-b": "RESCUEMESH_P2P_STORAGE=.p2p-data-b next dev --port 43148",
     "build": "next build",
     "start": "next start --port 43147",
     "lint": "eslint"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "autobase": "^7.28.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "corestore": "^7.12.0",
+    "hyperbee": "^2.27.3",
+    "hyperswarm": "^4.17.0",
     "lucide-react": "^1.33.0",
     "next": "16.3.2",
     "react": "19.2.8",

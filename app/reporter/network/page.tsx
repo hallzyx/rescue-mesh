@@ -6,11 +6,11 @@ export default function ReporterNetworkPage() {
       <div>
         <h2 className="text-2xl font-semibold text-slate-50">Network</h2>
         <p className="mt-2 text-slate-400">
-          Diagnóstico de esta instancia. Pear se conectará en la Fase 2.
+          Diagnóstico de esta instancia: Pear mesh, QVAC local y estado de sincronización.
         </p>
       </div>
       <div className="max-w-lg">
-        <NetworkPanel connectedPeers={0} />
+        <NetworkPanel />
       </div>
     </div>
   );
