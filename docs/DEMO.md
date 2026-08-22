@@ -8,8 +8,7 @@ Pantalla de control: [`/demo`](http://127.0.0.1:43147/demo)
 npm run test:demo
 ```
 
-Recorre los 7 pasos del PRD en Chromium (misma instancia = Local Crisis Intelligence Copilot).  
-Si además está corriendo `npm run dev:peer-b`, valida que Peer B reciba el incidente por P2P.
+Levanta Peer A (`:43147`) y Peer B (`:43148`) si no están arriba, recorre los 7 pasos en Chromium y **exige** que B reciba el incidente por Pear. Sin skip.
 
 ## Preparación (antes de grabar)
 

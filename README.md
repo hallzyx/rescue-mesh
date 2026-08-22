@@ -55,11 +55,12 @@ Director OBS: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
 npx playwright install chromium   # una vez
 npm run test:smoke                # APIs + páginas (HTTP)
 npm run test:e2e                  # flujo Reporter → QVAC → Responder
-npm run test:demo                 # guion de 7 pasos del PRD (hackathon)
+npm run test:demo                 # 7 pasos + réplica P2P (levanta A y B)
 npm test                          # smoke + e2e + demo
 ```
 
-Si no hay servidor, Playwright levanta `npm run dev` en el puerto 43147. Si ya corre, lo reutiliza.
+`test:smoke` / `test:e2e` reutilizan el servidor en `:43147` o levantan `npm run dev`.  
+`test:demo` necesita **los dos peers**: reutiliza A/B si ya corren, o arranca `dev:peer-a` + `dev:peer-b`.
 
 ## Stack
 

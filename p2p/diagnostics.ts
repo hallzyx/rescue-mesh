@@ -7,6 +7,7 @@ export type PeerConnectionInfo = {
 export type P2PDiagnostics = {
   peerId: string;
   publicKey: string;
+  swarmPublicKey: string;
   coreKey: string;
   instanceLabel: string;
   connectedPeers: PeerConnectionInfo[];

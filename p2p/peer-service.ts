@@ -30,6 +30,7 @@ class RescueMeshPeerService {
   private swarm: Hyperswarm;
   private storagePath: string;
   private publicKey = "";
+  private swarmPublicKey = "";
   private peerId = "";
   private coreKey = "";
   private peers = new Map<string, PeerConnectionInfo>();
@@ -56,6 +57,7 @@ class RescueMeshPeerService {
   private async init() {
     await this.bee.ready();
     this.publicKey = this.core.key.toString("hex");
+    this.swarmPublicKey = this.swarm.keyPair.publicKey.toString("hex");
     this.coreKey = this.publicKey;
     this.peerId = shortPeerId(this.publicKey);
 
@@ -172,6 +174,14 @@ class RescueMeshPeerService {
     return this.readBee();
   }
 
+  introducePeer(swarmPublicKeyHex: string) {
+    const key = Buffer.from(swarmPublicKeyHex.trim(), "hex");
+    if (key.length !== 32) {
+      throw new Error("swarmPublicKey debe ser 32 bytes hex.");
+    }
+    this.swarm.joinPeer(key);
+  }
+
   getConnectedCount(): number {
     return this.swarm.connections.size;
   }
@@ -185,6 +195,7 @@ class RescueMeshPeerService {
     return {
       peerId: this.peerId,
       publicKey: this.publicKey,
+      swarmPublicKey: this.swarmPublicKey,
       coreKey: this.coreKey,
       instanceLabel: process.env.RESCUEMESH_INSTANCE_LABEL?.trim() || "Peer",
       connectedPeers,
