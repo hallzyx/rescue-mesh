@@ -43,6 +43,23 @@ Director OBS: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
 
 Libera esos puertos antes (`npm run compose:down` o para los `next dev` locales).
 
+### Sincronizar historial completo (Origin / GitHub)
+
+Si tu clone de Origin solo tiene **3 commits** y falta el MVP (Fases 0–4, Docker, tests):
+
+1. Copia `rescuemesh-full.bundle` desde este repo/agente a tu PC.
+2. En WSL, dentro de tu clone:
+
+```bash
+origin auth login
+chmod +x scripts/import-full-history.sh
+./scripts/import-full-history.sh
+git push origin main    # Origin
+git push github main    # GitHub (remoto SSH)
+```
+
+El bundle trae **17 commits** hasta `59ad3ff` (Docker Compose + demo test).
+
 ### Sin Docker
 
 ```bash
