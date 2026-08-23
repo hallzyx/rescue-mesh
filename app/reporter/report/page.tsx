@@ -11,17 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { buildIncident, useIncidents } from "@/lib/incident-store";
+import { EXAMPLE_EN, EXAMPLE_ES } from "@/lib/demo-examples";
 import { getPeerId } from "@/lib/peer-session";
 import { pushSystemError } from "@/lib/system-errors";
 import { analyzeReport } from "@/qvac/client";
 import type { QvacExtraction } from "@/qvac/schema";
 import type { Incident } from "@/domain/incident";
-
-const EXAMPLE =
-  "Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.";
-
-const EXAMPLE_ES =
-  "Se cayó parte del edificio. Somos tres, una persona está atrapada y otra está sangrando. Estamos en Av. Grau 120.";
 
 type Step = "compose" | "analyzing" | "preview" | "manual" | "saved";
 
@@ -63,11 +58,11 @@ export default function ReportEmergencyPage() {
       setStep("manual");
     } catch {
       pushSystemError({
-        title: "QVAC no disponible",
-        message: "El análisis local falló. Puedes completar el incidente manualmente.",
+        title: "QVAC unavailable",
+        message: "Local analysis failed. You can complete the incident manually.",
         severity: "error",
       });
-      setIssues([{ field: "qvac", message: "Error inesperado durante el análisis." }]);
+      setIssues([{ field: "qvac", message: "Unexpected error during analysis." }]);
       setStep("manual");
     }
   }
@@ -103,28 +98,28 @@ export default function ReportEmergencyPage() {
       <div>
         <h2 className="text-2xl font-semibold text-slate-50">Report Emergency</h2>
         <p className="mt-2 text-slate-400">
-          Describe lo que ocurre. QVAC lo analiza localmente y crea un incidente estructurado.
+          Describe what is happening. QVAC analyzes it locally and creates a structured incident.
         </p>
       </div>
 
       {step === "compose" ? (
         <Card className="border-slate-800 bg-slate-900/60">
           <CardHeader>
-            <CardTitle className="text-slate-100">Describe lo que ocurre</CardTitle>
+            <CardTitle className="text-slate-100">Describe what is happening</CardTitle>
             <CardDescription className="text-slate-400">
-              Ubicación, personas afectadas, atrapados, heridos, necesidades.
+              Location, affected people, trapped, injured, needs.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="report" className="text-slate-300">
-                Reporte en texto libre
+                Free-text report
               </Label>
               <Textarea
                 id="report"
                 value={report}
                 onChange={(e) => setReport(e.target.value)}
-                placeholder={EXAMPLE}
+                placeholder={EXAMPLE_EN}
                 rows={8}
                 className="border-slate-700 bg-slate-950 text-slate-100 placeholder:text-slate-600"
               />
@@ -139,9 +134,9 @@ export default function ReportEmergencyPage() {
                 type="button"
                 variant="outline"
                 className="border-slate-700 text-slate-300"
-                onClick={() => setReport(EXAMPLE)}
+                onClick={() => setReport(EXAMPLE_EN)}
               >
-                Ejemplo EN (demo)
+                EN example (demo)
               </Button>
               <Button
                 type="button"
@@ -149,14 +144,14 @@ export default function ReportEmergencyPage() {
                 className="border-slate-700 text-slate-300"
                 onClick={() => setReport(EXAMPLE_ES)}
               >
-                Ejemplo ES (traducción)
+                ES example (translation)
               </Button>
               <Button
                 className="bg-red-700 hover:bg-red-600"
                 disabled={report.trim().length < 12}
                 onClick={handleAnalyze}
               >
-                Enviar reporte
+                Submit report
               </Button>
             </div>
           </CardContent>
@@ -170,7 +165,7 @@ export default function ReportEmergencyPage() {
             <div>
               <p className="text-lg font-medium text-slate-100">Analyzing locally…</p>
               <p className="mt-2 text-sm text-slate-400">
-                QVAC procesa el reporte en este dispositivo. Sin API cloud.
+                QVAC processes the report on this device. No cloud API.
               </p>
             </div>
           </CardContent>
@@ -180,19 +175,19 @@ export default function ReportEmergencyPage() {
       {step === "preview" && previewIncident ? (
         <div className="space-y-4">
           <div className="rounded-lg border border-emerald-800/50 bg-emerald-950/20 p-4 text-sm text-emerald-100">
-            <p className="font-semibold">Análisis completado</p>
+            <p className="font-semibold">Analysis complete</p>
             <p className="mt-1 text-emerald-100/80">
-              Motor: {provider === "qvac-sdk" ? "QVAC SDK" : "Local engine (fallback)"}. Revisa el
-              incidente antes de guardarlo.
+              Engine: {provider === "qvac-sdk" ? "QVAC SDK" : "Local engine (fallback)"}. Review the
+              incident before saving it.
             </p>
           </div>
           <IncidentListItem incident={previewIncident} />
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" className="border-slate-700" onClick={resetFlow}>
-              Editar reporte
+              Edit report
             </Button>
             <Button className="bg-red-700 hover:bg-red-600" onClick={handleConfirm}>
-              Confirmar y guardar
+              Confirm and save
             </Button>
           </div>
         </div>
@@ -201,9 +196,9 @@ export default function ReportEmergencyPage() {
       {step === "manual" ? (
         <Card className="border-slate-800 bg-slate-900/60">
           <CardHeader>
-            <CardTitle className="text-slate-100">Revisión manual</CardTitle>
+            <CardTitle className="text-slate-100">Manual review</CardTitle>
             <CardDescription className="text-slate-400">
-              Completa los campos para registrar el incidente.
+              Fill in the fields to record the incident.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -219,22 +214,22 @@ export default function ReportEmergencyPage() {
       {step === "saved" ? (
         <Card className="border-slate-800 bg-slate-900/60">
           <CardContent className="space-y-4 py-10 text-center">
-            <p className="text-lg font-medium text-slate-100">Incidente guardado localmente</p>
+            <p className="text-lg font-medium text-slate-100">Incident saved locally</p>
             <p className="text-sm text-slate-400">
-              ID: <span className="font-mono text-slate-300">{savedId}</span> · replicando vía P2P
+              ID: <span className="font-mono text-slate-300">{savedId}</span> · replicating via P2P
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               <Button variant="outline" className="border-slate-700" onClick={resetFlow}>
-                Nuevo reporte
+                New report
               </Button>
               <Button
                 className="bg-red-700 hover:bg-red-600"
                 onClick={() => router.push("/reporter/reports")}
               >
-                Ver mis reportes
+                View my reports
               </Button>
               <Button variant="outline" className="border-slate-700" onClick={() => router.push("/responder")}>
-                Ir al dashboard
+                Go to dashboard
               </Button>
             </div>
           </CardContent>

@@ -6,7 +6,7 @@ export default function ResponderNetworkPage() {
       <div>
         <h2 className="text-2xl font-semibold text-slate-50">Network Diagnostics</h2>
         <p className="mt-2 text-slate-400">
-          Datos de runtime de esta instancia: Pear (Hyperswarm + Corestore) y QVAC local.
+          Runtime data for this instance: Pear (Hyperswarm + Corestore) and local QVAC.
         </p>
       </div>
       <div className="max-w-lg">

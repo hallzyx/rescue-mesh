@@ -305,7 +305,7 @@ class PeerHost {
   }
 
   diagnostics() {
-    const connectedPeers = [...this.peers.values()].filter((peer) => peer.status === "connected");
+    const connectedPeers = [...this.peers.values()];
     const connectedCount = this.connectedCount();
     return {
       peerId: this.peerId,

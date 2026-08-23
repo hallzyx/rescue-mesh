@@ -22,12 +22,12 @@ export type DictationCallbacks = {
 export function startDictation(callbacks: DictationCallbacks): () => void {
   const Ctor = getRecognitionCtor();
   if (!Ctor) {
-    callbacks.onError("El navegador no soporta dictado local (Web Speech API).");
+    callbacks.onError("This browser does not support local dictation (Web Speech API).");
     return () => {};
   }
 
   const recognition = new Ctor();
-  recognition.lang = "es-PE";
+  recognition.lang = "en-US";
   recognition.interimResults = true;
   recognition.continuous = true;
 
@@ -49,7 +49,7 @@ export function startDictation(callbacks: DictationCallbacks): () => void {
   };
 
   recognition.onerror = () => {
-    callbacks.onError("No se pudo capturar audio. Verifica permisos del micrófono.");
+    callbacks.onError("Could not capture audio. Check microphone permissions.");
   };
 
   recognition.start();

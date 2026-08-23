@@ -16,7 +16,7 @@ type StopPeerButtonProps = {
 export function StopPeerButton({
   endpoint = "/api/demo/stop",
   label,
-  confirmLabel = "Confirmar: matar proceso",
+  confirmLabel = "Confirm: kill process",
   className,
   variant = "card",
 }: StopPeerButtonProps) {

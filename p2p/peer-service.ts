@@ -341,9 +341,7 @@ class RescueMeshPeerService {
   }
 
   getDiagnostics(): P2PDiagnostics {
-    const connectedPeers = [...this.peers.values()].filter(
-      (peer) => peer.status === "connected",
-    );
+    const connectedPeers = [...this.peers.values()];
     const connectedCount = this.getConnectedCount();
 
     return {

@@ -44,7 +44,7 @@ export function parseQvacResponse(text: string): {
   if (candidate === null) {
     return {
       ok: false,
-      issues: [{ field: "json", message: "No se pudo extraer JSON válido de la respuesta." }],
+      issues: [{ field: "json", message: "Could not extract valid JSON from the response." }],
       raw: text,
     };
   }

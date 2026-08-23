@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const reporterLinks = [
-  { href: "/reporter", label: "Inicio" },
+  { href: "/reporter", label: "Home" },
   { href: "/reporter/report", label: "Report Emergency" },
   { href: "/reporter/reports", label: "My Reports" },
   { href: "/reporter/network", label: "Network" },

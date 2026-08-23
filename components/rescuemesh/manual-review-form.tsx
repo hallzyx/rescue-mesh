@@ -84,10 +84,10 @@ export function ManualReviewForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="rounded-lg border border-amber-800/60 bg-amber-950/30 p-4 text-sm text-amber-100">
-        <p className="font-semibold">Revisión manual requerida</p>
+        <p className="font-semibold">Manual review required</p>
         <p className="mt-1 text-amber-100/80">
-          QVAC no devolvió un JSON válido tras el reintento. Completa los campos para crear el
-          incidente.
+          QVAC did not return valid JSON after the retry. Fill in the fields to create the
+          incident.
         </p>
         {issues.length > 0 ? (
           <ul className="mt-2 list-inside list-disc text-xs text-amber-200/80">
@@ -103,7 +103,7 @@ export function ManualReviewForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="priority" className="text-slate-300">
-            Prioridad
+            Priority
           </Label>
           <select
             id="priority"
@@ -120,13 +120,13 @@ export function ManualReviewForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="location" className="text-slate-300">
-            Ubicación
+            Location
           </Label>
           <input
             id="location"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Av. Grau 120"
+            placeholder="Plaza San Martin"
             className="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-600"
           />
         </div>
@@ -135,7 +135,7 @@ export function ManualReviewForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="affected" className="text-slate-300">
-            Personas afectadas
+            Affected people
           </Label>
           <input
             id="affected"
@@ -148,7 +148,7 @@ export function ManualReviewForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="trapped" className="text-slate-300">
-            Personas atrapadas
+            Trapped people
           </Label>
           <input
             id="trapped"
@@ -166,11 +166,11 @@ export function ManualReviewForm({
           checked={medicalEmergency}
           onCheckedChange={(checked) => setMedicalEmergency(checked === true)}
         />
-        Emergencia médica
+        Medical emergency
       </label>
 
       <div className="space-y-2">
-        <Label className="text-slate-300">Necesidades</Label>
+        <Label className="text-slate-300">Needs</Label>
         <div className="grid gap-2 sm:grid-cols-2">
           {NEED_TYPES.map((need) => (
             <label key={need} className="flex items-center gap-2 text-sm text-slate-300">
@@ -186,7 +186,7 @@ export function ManualReviewForm({
 
       <div className="space-y-2">
         <Label htmlFor="summary" className="text-slate-300">
-          Resumen operacional
+          Operational summary
         </Label>
         <Textarea
           id="summary"
@@ -207,10 +207,10 @@ export function ManualReviewForm({
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="outline" className="border-slate-700" onClick={onCancel}>
-          Volver
+          Back
         </Button>
         <Button type="submit" className="bg-red-700 hover:bg-red-600">
-          Guardar incidente
+          Save incident
         </Button>
       </div>
     </form>

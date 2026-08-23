@@ -39,7 +39,7 @@ function ensureSeed(): Incident[] {
     const parsed = JSON.parse(raw) as Incident[];
     return Array.isArray(parsed) ? parsed : SEED_INCIDENTS;
   } catch {
-    console.warn("[storage] localStorage corrupto; se restaura el seed de demo.");
+    console.warn("[storage] localStorage corrupt; restoring demo seed.");
     window.localStorage.removeItem(STORAGE_KEY);
     return SEED_INCIDENTS;
   }
@@ -91,8 +91,8 @@ async function syncFromP2P() {
     if (now - lastP2PErrorAt < 15_000) return;
     lastP2PErrorAt = now;
     pushSystemError({
-      title: "Sincronización P2P interrumpida",
-      message: "Los incidentes locales siguen disponibles. El mesh se reintentará automáticamente.",
+      title: "P2P sync interrupted",
+      message: "Local incidents are still available. The mesh will retry automatically.",
       severity: "warning",
     });
   }

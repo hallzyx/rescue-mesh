@@ -49,7 +49,7 @@ export function AppHeader({
           }}
         >
           <RefreshCw data-icon="inline-start" />
-          Cambiar rol
+          Switch role
         </Button>
         <Button
           variant="ghost"

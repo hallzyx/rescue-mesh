@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSyncExternalStore } from "react";
 import { getPeerId } from "@/lib/peer-session";
+import { probeLocalDevices, type LocalDeviceStatus } from "@/lib/local-peers";
 import { fetchQvacStatus, type QvacRuntimeStatus } from "@/qvac/client";
 import { fetchP2PStatus } from "@/p2p/client";
 
@@ -30,12 +31,13 @@ export function NetworkPanel() {
   const appPeerId = useSyncExternalStore(subscribe, getPeerId, () => "--------");
   const [qvacStatus, setQvacStatus] = useState<QvacRuntimeStatus | null>(null);
   const [p2pStatus, setP2pStatus] = useState<P2PStatus | null>(null);
+  const [devices, setDevices] = useState<LocalDeviceStatus[]>([]);
 
   useEffect(() => {
     let active = true;
 
     async function refresh() {
-      const [qvac, p2p] = await Promise.all([
+      const [qvac, p2p, probed] = await Promise.all([
         fetchQvacStatus().catch(
           (): QvacRuntimeStatus => ({
             provider: "local-engine",
@@ -53,17 +55,24 @@ export function NetworkPanel() {
             connectedPeers: [],
           }),
         ),
+        probeLocalDevices(),
       ]);
 
       if (!active) return;
       setQvacStatus(qvac);
       setP2pStatus(p2p);
+      setDevices(
+        probed.map((device) => ({
+          ...device,
+          self: Boolean(p2p.peerId && device.peerId === p2p.peerId),
+        })),
+      );
     }
 
     void refresh();
     const timer = window.setInterval(() => {
       void refresh();
-    }, 2000);
+    }, 1000);
 
     return () => {
       active = false;
@@ -88,12 +97,29 @@ export function NetworkPanel() {
           <p className="mt-1 text-xs text-slate-500">App peer: {appPeerId}</p>
         </div>
         <div>
+          <p className="text-slate-500">Devices</p>
+          <ul className="mt-2 space-y-1 text-xs">
+            {devices.map((device) => (
+              <li
+                key={device.url}
+                className={device.online ? "text-emerald-300" : "text-amber-200"}
+              >
+                {device.shortLabel} {device.peerId} ·{" "}
+                {device.self ? "THIS NODE" : device.online ? "ONLINE" : "OFFLINE"}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
           <p className="text-slate-500">Connected peers</p>
           <p>{connectedCount}</p>
           {p2pStatus?.connectedPeers.length ? (
-            <ul className="mt-2 space-y-1 text-xs text-emerald-300">
+            <ul className="mt-2 space-y-1 text-xs">
               {p2pStatus.connectedPeers.map((peer) => (
-                <li key={peer.peerId}>
+                <li
+                  key={peer.peerId}
+                  className={peer.status === "connected" ? "text-emerald-300" : "text-amber-200"}
+                >
                   {peer.peerId} · {peer.status.toUpperCase()}
                 </li>
               ))}

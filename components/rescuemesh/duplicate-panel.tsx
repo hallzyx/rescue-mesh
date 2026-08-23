@@ -26,7 +26,7 @@ export function DuplicatePanel({ incidents }: { incidents: Incident[] }) {
         Likely duplicates
       </p>
       <p className="mt-1 text-sm text-violet-100/80">
-        Posibles reportes equivalentes. No se fusionan automáticamente — revisa manualmente.
+        Possible equivalent reports. They are not merged automatically — review them by hand.
       </p>
       <ul className="mt-3 space-y-2 text-sm">
         {pairs.map(({ a, b, reason }) => (

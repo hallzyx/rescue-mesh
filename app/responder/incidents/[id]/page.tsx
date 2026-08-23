@@ -20,9 +20,9 @@ export default function IncidentDetailPage({
   if (!incident) {
     return (
       <div className="space-y-4">
-        <p className="text-slate-400">Incidente no encontrado.</p>
+        <p className="text-slate-400">Incident not found.</p>
         <Button variant="outline" render={<Link href="/responder" />}>
-          Volver al dashboard
+          Back to dashboard
         </Button>
       </div>
     );
@@ -67,7 +67,7 @@ export default function IncidentDetailPage({
             <Field label="Peer origin" value={incident.createdByPeerId} />
             <Field
               label="Created"
-              value={new Date(incident.createdAt).toLocaleString("es-PE")}
+              value={new Date(incident.createdAt).toLocaleString("en-US")}
             />
             <Field label="Sync" value={incident.syncStatus.toUpperCase()} />
           </div>

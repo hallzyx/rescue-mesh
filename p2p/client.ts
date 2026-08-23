@@ -1,7 +1,7 @@
 import type { Incident } from "@/domain/incident";
 
 export async function fetchP2PStatus() {
-  const response = await fetch("/api/p2p/status", { cache: "no-store" });
+  const response = await fetch(`/api/p2p/status?t=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) {
     throw new Error("No se pudo obtener el estado P2P.");
   }

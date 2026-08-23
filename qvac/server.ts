@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import path from "node:path";
+import { EXAMPLE_EN } from "@/lib/demo-examples";
 import { buildUserPrompt, QVAC_SYSTEM_PROMPT } from "./prompts";
 import { parseQvacResponse } from "./parser";
 import { analyzeWithLocalEngine } from "./local-engine";
@@ -14,8 +15,7 @@ let sdkAvailable = false;
 let warmupComplete = false;
 let warmupInFlight: Promise<{ ready: boolean; error?: string }> | null = null;
 
-const WARMUP_REPORT =
-  "Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.";
+const WARMUP_REPORT = EXAMPLE_EN;
 
 type QvacSdkModule = {
   completion: (options: {
@@ -91,15 +91,29 @@ export async function analyzeReportServer(rawReport: string): Promise<{
       const raw = await completeWithQvacSdk(trimmed);
       const parsed = parseQvacResponse(raw);
       if (parsed.ok) {
+        const local = analyzeWithLocalEngine(trimmed);
+        const merged = {
+          ...local,
+          ...parsed.data,
+          priority: local.priority === "critical" ? "critical" : parsed.data.priority,
+          location: parsed.data.location?.trim() || local.location,
+          affectedPeople: parsed.data.affectedPeople ?? local.affectedPeople,
+          trappedPeople: parsed.data.trappedPeople ?? local.trappedPeople,
+          medicalEmergency: parsed.data.medicalEmergency || local.medicalEmergency,
+          needs:
+            local.needs.length > 0
+              ? [...new Set([...local.needs, ...(parsed.data.needs ?? [])])]
+              : parsed.data.needs,
+        };
         return {
           provider: "qvac-sdk",
           extraction: {
-            ...parsed.data,
-            summary: localizeSummary(parsed.data, trimmed),
+            ...merged,
+            summary: localizeSummary(merged, trimmed),
           },
         };
       }
-      return { provider: "qvac-sdk", issues: parsed.issues, raw: parsed.raw };
+      console.error("[QVAC SDK] JSON inválido, usando local-engine.", parsed.issues);
     } catch (error) {
       console.error("[QVAC SDK]", error);
     }

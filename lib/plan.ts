@@ -252,46 +252,47 @@ export const architecture: ArchitectureLayer[] = [
 export const demoSteps: DemoStep[] = [
   {
     step: 1,
-    title: "Mostrar el runtime",
-    action: "Abrir Network Diagnostics en ambas instancias, en una sola laptop.",
+    title: "Show the runtime",
+    action: "Open Network Diagnostics on both instances, on one laptop.",
     show: "AI LOCAL ✓   P2P CONNECTED ✓   CENTRAL SERVER NONE",
   },
   {
     step: 2,
-    title: "El Reporter escribe",
+    title: "The Reporter writes",
     action:
-      "En Peer A: “Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.”",
-    show: "Analyzing locally…  —  QVAC procesa en el dispositivo.",
+      "On Peer A: “A bus crashed into a storefront. There are three of us. One person is trapped and another one is bleeding. We are at Plaza San Martin.”",
+    show: "Analyzing locally…  —  QVAC processes on-device.",
   },
   {
     step: 3,
-    title: "Sale el incidente",
-    action: "Validar JSON y persistir. Mostrar la tarjeta, no el prompt.",
-    show: "CRITICAL · Av. Grau 120 · 3 affected · 1 trapped · Medical emergency · Needs: Rescue, Medical",
+    title: "The incident appears",
+    action: "Validate JSON and persist. Show the card, not the prompt.",
+    show: "CRITICAL · Plaza San Martin · 3 affected · 1 trapped · Medical emergency · Needs: Rescue, Medical",
   },
   {
     step: 4,
-    title: "El Responder lo recibe",
-    action: "Peer B, sin refrescar a mano ni pasar por un servidor propio.",
-    show: "NEW CRITICAL INCIDENT en el dashboard, arriba de la lista.",
+    title: "The Responder receives it",
+    action: "Peer B, without a manual refresh or a RescueMesh backend.",
+    show: "NEW CRITICAL INCIDENT at the top of the dashboard.",
   },
   {
     step: 5,
-    title: "Diagnóstico real",
-    action: "Abrir Network un momento. Leer IDs del runtime.",
+    title: "Honest diagnostics",
+    action: "Open Network briefly. Read IDs from runtime.",
     show: "Peer A 7A82…  ·  Peer B D19F…  ·  Connected ✓",
   },
   {
     step: 6,
-    title: "Cerrar Peer A",
+    title: "Stop Peer A",
     action:
-      "En el director o en Peer A: pulsar Cerrar Peer A y confirmar. Mata el proceso, no solo la pestaña.",
+      "On the director or Peer A: click Stop Peer A and confirm. It kills the process, not just the tab.",
     show: "Peer A CLOSED",
   },
   {
     step: 7,
-    title: "El incidente permanece",
-    action: "Peer B sigue mostrando el mismo incidente.",
+    title: "The incident remains",
+    action:
+      "Peer B still shows the same incident. Optional: Command Center has it too; start Peer A again from the director.",
     show: "Incident #42 — The original reporter is gone. The incident isn't.",
   },
 ];

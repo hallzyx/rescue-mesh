@@ -17,49 +17,49 @@ async function openAs(page: Page, role: "reporter" | "responder", path: string) 
 test.describe("e2e: reporter → QVAC → dashboard", () => {
   test("home shows three instance roles", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("button", { name: "Entrar como Reporter" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Entrar como Responder" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Entrar como Command Center" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Enter as Reporter" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Enter as Responder" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Enter as Command Center" })).toBeVisible();
   });
 
   test("choosing Reporter opens the reporter home", async ({ page }) => {
     await page.goto("/");
-    await page.getByRole("button", { name: "Entrar como Reporter" }).click();
-    await expect(page.getByRole("heading", { name: "Reporta con claridad" })).toBeVisible();
+    await page.getByRole("button", { name: "Enter as Reporter" }).click();
+    await expect(page.getByRole("heading", { name: "Report with clarity" })).toBeVisible();
   });
 
   test("demo director lists 7 steps", async ({ page }) => {
     await page.goto("/demo");
-    await expect(page.getByRole("heading", { name: /Fase 3/ })).toBeVisible();
-    await expect(page.getByText("Paso 7")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Phase 3/ })).toBeVisible();
+    await expect(page.getByText("Step 7")).toBeVisible();
     await expect(
       page.getByText("The original reporter is gone. The incident isn't.", { exact: true }),
     ).toBeVisible();
-    await expect(page.getByRole("button", { name: "Cerrar Peer A" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Stop Peer A|Start Peer A/ })).toBeVisible();
   });
 
-  test("Av. Grau report becomes a persisted CRITICAL incident", async ({ page }) => {
+  test("Plaza San Martin report becomes a persisted CRITICAL incident", async ({ page }) => {
     await openAs(page, "reporter", "/reporter/report");
     await expect(page.getByRole("heading", { name: "Report Emergency" })).toBeVisible();
 
-    await page.getByRole("button", { name: "Ejemplo EN (demo)" }).click();
-    await expect(page.locator("#report")).toHaveValue(/Av\. Grau 120/);
+    await page.getByRole("button", { name: "EN example (demo)" }).click();
+    await expect(page.locator("#report")).toHaveValue(/Plaza San Martin/);
 
-    await page.getByRole("button", { name: "Enviar reporte" }).click();
+    await page.getByRole("button", { name: "Submit report" }).click();
     await expect(page.getByText("Analyzing locally…")).toBeVisible();
     await expect(page.getByText("CRITICAL", { exact: true })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText("Av. Grau 120").first()).toBeVisible();
+    await expect(page.getByText(/Plaza San Mart/i).first()).toBeVisible();
     await expect(page.getByText("Medical emergency")).toBeVisible();
 
-    await page.getByRole("button", { name: "Confirmar y guardar" }).click();
-    await expect(page.getByText("Incidente guardado localmente")).toBeVisible();
+    await page.getByRole("button", { name: "Confirm and save" }).click();
+    await expect(page.getByText("Incident saved locally")).toBeVisible();
 
     const idText = await page.getByText(/ID:/).innerText();
     const match = idText.match(/inc-[a-z0-9]+/i);
     expect(match, "saved incident id").toBeTruthy();
     const incidentId = match![0];
 
-    await page.getByRole("button", { name: "Ver mis reportes" }).click();
+    await page.getByRole("button", { name: "View my reports" }).click();
     await expect(page.getByRole("heading", { name: "My Reports" })).toBeVisible();
     await expect(page.getByText(incidentId)).toBeVisible();
 
@@ -78,11 +78,11 @@ test.describe("e2e: reporter → QVAC → dashboard", () => {
   test("Spanish example yields English operational summary", async ({ page }) => {
     await openAs(page, "reporter", "/reporter/report");
     await expect(page.getByRole("heading", { name: "Report Emergency" })).toBeVisible();
-    await page.getByRole("button", { name: "Ejemplo ES (traducción)" }).click();
-    await page.getByRole("button", { name: "Enviar reporte" }).click();
+    await page.getByRole("button", { name: "ES example (translation)" }).click();
+    await page.getByRole("button", { name: "Submit report" }).click();
     await expect(page.getByText("CRITICAL", { exact: true })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByText(/CRITICAL incident at Av\. Grau 120/i)).toBeVisible();
-    await expect(page.getByText("Se cayó parte del edificio")).toHaveCount(0);
+    await expect(page.getByText(/CRITICAL incident at Plaza San Mart/i)).toBeVisible();
+    await expect(page.getByText("Un bus se estrelló contra un local")).toHaveCount(0);
   });
 
   test("network diagnostics show runtime values", async ({ page }) => {

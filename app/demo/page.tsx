@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DemoStatusBar } from "@/components/rescuemesh/demo-status-bar";
+import { PeerPowerToggle } from "@/components/rescuemesh/peer-power-toggle";
 import { QvacWarmup } from "@/components/rescuemesh/qvac-warmup";
-import { StopPeerButton } from "@/components/rescuemesh/stop-peer-button";
 import { demoSteps } from "@/lib/plan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,10 +87,10 @@ export default function DemoDirectorPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-400">
             RescueMesh · Demo Director
           </p>
-          <h1 className="text-3xl font-bold sm:text-4xl">Fase 3 — OBS Layout</h1>
+          <h1 className="text-3xl font-bold sm:text-4xl">Phase 3 — OBS Layout</h1>
           <p className="max-w-3xl text-slate-400">
-            Pantalla de control para grabar la demo. Abre Reporter y Responder en ventanas lado a lado
-            (1080p). Precalienta QVAC antes de grabar.
+            Control screen for recording the demo. Open Reporter and Responder in side-by-side
+            windows (1080p). Warm up QVAC before you record.
           </p>
         </header>
 
@@ -105,13 +105,9 @@ export default function DemoDirectorPage() {
               <p className="font-mono text-2xl font-bold">{peerA}</p>
               <p className="text-sm text-slate-400">{PEER_A_URL}</p>
               <Button className="w-full bg-red-700 hover:bg-red-600" render={<Link href={`${PEER_A_URL}/reporter/report?demo=1`} target="_blank" />} >
-                Abrir Report Emergency
+                Open Report Emergency
               </Button>
-              <StopPeerButton
-                endpoint={`${PEER_A_URL}/api/demo/stop`}
-                label="Cerrar Peer A"
-                confirmLabel="Confirmar: matar Peer A"
-              />
+              <PeerPowerToggle peer="a" online={peerA !== "offline" && peerA !== "------"} />
             </CardContent>
           </Card>
 
@@ -123,13 +119,9 @@ export default function DemoDirectorPage() {
               <p className="font-mono text-2xl font-bold">{peerB}</p>
               <p className="text-sm text-slate-400">{PEER_B_URL}</p>
               <Button className="w-full bg-sky-700 hover:bg-sky-600" render={<Link href={`${PEER_B_URL}/responder?demo=1`} target="_blank" />} >
-                Abrir Dashboard
+                Open Dashboard
               </Button>
-              <StopPeerButton
-                endpoint={`${PEER_B_URL}/api/demo/stop`}
-                label="Cerrar Peer B"
-                confirmLabel="Confirmar: matar Peer B"
-              />
+              <PeerPowerToggle peer="b" online={peerB !== "offline" && peerB !== "------"} />
             </CardContent>
           </Card>
 
@@ -141,20 +133,16 @@ export default function DemoDirectorPage() {
               <p className="font-mono text-2xl font-bold">{peerC}</p>
               <p className="text-sm text-slate-400">{PEER_C_URL}</p>
               <Button className="w-full bg-violet-700 hover:bg-violet-600" render={<Link href={`${PEER_C_URL}/responder?demo=1`} target="_blank" />} >
-                Abrir Command Center
+                Open Command Center
               </Button>
-              <StopPeerButton
-                endpoint={`${PEER_C_URL}/api/demo/stop`}
-                label="Cerrar Peer C"
-                confirmLabel="Confirmar: matar Peer C"
-              />
+              <PeerPowerToggle peer="c" online={peerC !== "offline" && peerC !== "------"} />
             </CardContent>
           </Card>
         </div>
 
         <Card className="border-slate-800 bg-slate-900/60">
           <CardHeader>
-            <CardTitle className="text-lg">Flujo de 7 pasos</CardTitle>
+            <CardTitle className="text-lg">7-step flow</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {demoSteps.map((step) => (
@@ -163,7 +151,7 @@ export default function DemoDirectorPage() {
                 className="rounded-lg border border-slate-800 bg-slate-950/50 p-4"
               >
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Paso {step.step}
+                  Step {step.step}
                 </p>
                 <p className="mt-1 text-lg font-semibold text-slate-100">{step.title}</p>
                 <p className="mt-2 text-sm text-slate-400">{step.action}</p>
@@ -177,10 +165,18 @@ export default function DemoDirectorPage() {
           <p className="text-lg font-semibold text-slate-200">
             {p2pConnected
               ? "P2P CONNECTED ✓"
-              : "Levanta peers: npm run dev:peer-a, dev:peer-b y dev:peer-c"}
+              : "Start peers: npm run dev:peer-a, dev:peer-b, and dev:peer-c"}
           </p>
           <p className="mt-2 text-sm italic text-slate-400">
             The original reporter is gone. The incident isn&apos;t.
+          </p>
+          <p className="mt-3 text-sm text-slate-500">
+            After step 7: open Command Center (same replica) or start Peer A again.
+            If you killed A, the director lives at{" "}
+            <a className="underline hover:text-slate-300" href="http://127.0.0.1:43148/demo">
+              Peer B /demo
+            </a>
+            .
           </p>
         </div>
       </div>

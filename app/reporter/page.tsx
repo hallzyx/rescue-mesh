@@ -7,21 +7,21 @@ const actions = [
   {
     href: "/reporter/report",
     title: "Report Emergency",
-    description: "Describe lo que ocurre en texto libre. QVAC lo procesa localmente en tu dispositivo.",
+    description: "Describe what is happening in free text. QVAC processes it locally on your device.",
     icon: AlertTriangle,
     primary: true,
   },
   {
     href: "/reporter/reports",
     title: "My Reports",
-    description: "Consulta tus reportes y el estado de sincronización.",
+    description: "Review your reports and their sync status.",
     icon: FileText,
     primary: false,
   },
   {
     href: "/reporter/network",
     title: "Network",
-    description: "Diagnóstico de peer, AI local y conectividad P2P.",
+    description: "Peer, local AI, and P2P connectivity diagnostics.",
     icon: Network,
     primary: false,
   },
@@ -36,10 +36,10 @@ export default function ReporterHomePage() {
             <Radio className="size-6" />
           </div>
           <div>
-            <h2 className="text-2xl font-semibold text-slate-50">Reporta con claridad</h2>
+            <h2 className="text-2xl font-semibold text-slate-50">Report with clarity</h2>
             <p className="mt-2 max-w-2xl text-slate-400">
-              No necesitas formularios complejos. Escribe lo que ves y RescueMesh lo convertirá en un
-              incidente estructurado con QVAC local.
+              You do not need complex forms. Write what you see and RescueMesh turns it into a
+              structured incident with local QVAC.
             </p>
           </div>
         </div>
@@ -63,10 +63,10 @@ export default function ReporterHomePage() {
                     : "w-full border-slate-700 bg-slate-900 text-slate-200 hover:bg-slate-800"
                 }
                 variant={action.primary ? "default" : "outline"}
-                aria-label={`Abrir ${action.title}`}
+                aria-label={`Open ${action.title}`}
                 render={<Link href={action.href} />}
               >
-                Abrir
+                Open
               </Button>
             </CardContent>
           </Card>

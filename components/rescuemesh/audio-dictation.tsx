@@ -27,7 +27,7 @@ export function AudioDictation({
   if (!supported) {
     return (
       <p className="text-xs text-slate-500">
-        Dictado por voz no disponible en este navegador. Usa texto libre.
+        Voice dictation is not available in this browser. Use free text.
       </p>
     );
   }
@@ -60,7 +60,7 @@ export function AudioDictation({
       onClick={toggle}
     >
       {listening ? <MicOff data-icon="inline-start" /> : <Mic data-icon="inline-start" />}
-      {listening ? "Detener dictado" : "Dictar reporte (local)"}
+      {listening ? "Stop dictation" : "Dictate report (local)"}
     </Button>
   );
 }

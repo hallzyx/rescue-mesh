@@ -15,14 +15,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "RescueMesh",
-  description:
-    "Red descentralizada de coordinación para emergencias. QVAC local y replicación Pear.",
+  description: "Decentralized emergency coordination. Local QVAC and Pear replication.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
-      lang="es"
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-slate-950 text-slate-100">

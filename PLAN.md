@@ -83,7 +83,7 @@ Precargar modelo, errores visibles, logs limpios, layout OBS, ensayar los 7 paso
 ## Demo (7 pasos)
 
 1. Mostrar `AI LOCAL ✓  P2P CONNECTED ✓  CENTRAL SERVER NONE`.
-2. Reporter escribe el colapso en Av. Grau 120.
+2. Reporter escribe el choque en Plaza San Martin.
 3. QVAC produce CRITICAL (3 affected, 1 trapped, medical, rescue).
 4. Responder recibe NEW CRITICAL INCIDENT.
 5. Network Diagnostics con Peer IDs reales.

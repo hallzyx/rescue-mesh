@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { GRAU_EN, GRAU_ES, ROUTES } from "../fixtures";
+import { EXAMPLE_EN, EXAMPLE_ES, EXAMPLE_LOCATION, ROUTES } from "../fixtures";
 
 test.describe("smoke: pages", () => {
   for (const route of ROUTES) {
@@ -43,14 +43,14 @@ test.describe("smoke: QVAC API", () => {
     expect(body.issues?.[0]?.field).toBe("rawReport");
   });
 
-  test("Av. Grau EN → CRITICAL rescue+medical", async ({ request }) => {
+  test("Plaza San Martin EN → CRITICAL rescue+medical", async ({ request }) => {
     const response = await request.post("/api/qvac/analyze", {
-      data: { rawReport: GRAU_EN },
+      data: { rawReport: EXAMPLE_EN },
     });
     expect(response.ok()).toBeTruthy();
     const { extraction } = await response.json();
     expect(extraction.priority).toBe("critical");
-    expect(extraction.location).toBe("Av. Grau 120");
+    expect(extraction.location).toMatch(EXAMPLE_LOCATION);
     expect(extraction.affectedPeople).toBe(3);
     expect(extraction.trappedPeople).toBe(1);
     expect(extraction.medicalEmergency).toBe(true);
@@ -58,15 +58,15 @@ test.describe("smoke: QVAC API", () => {
     expect(extraction.needs).not.toContain("infrastructure");
   });
 
-  test("Av. Grau ES → English operational summary", async ({ request }) => {
+  test("Plaza San Martín ES → English operational summary", async ({ request }) => {
     const response = await request.post("/api/qvac/analyze", {
-      data: { rawReport: GRAU_ES },
+      data: { rawReport: EXAMPLE_ES },
     });
     expect(response.ok()).toBeTruthy();
     const { extraction } = await response.json();
     expect(extraction.priority).toBe("critical");
     expect(extraction.summary).toMatch(/CRITICAL/i);
-    expect(extraction.summary).not.toMatch(/Se cayó/);
+    expect(extraction.summary).not.toMatch(/estrelló|sangrando/i);
     expect(extraction.needs).toEqual(expect.arrayContaining(["rescue", "medical"]));
   });
 });
@@ -91,20 +91,27 @@ test.describe("smoke: P2P API", () => {
     expect(body.stoppable).toBe(true);
   });
 
+  test("demo start endpoint is advertised without spawning", async ({ request }) => {
+    const response = await request.get("/api/demo/start");
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+    expect(body.startable).toBe(true);
+  });
+
   test("publish and list incident", async ({ request }) => {
     const incident = {
       id: `inc-smoke-${Date.now()}`,
       createdAt: new Date().toISOString(),
       createdByPeerId: "SMOKE1",
-      rawReport: GRAU_EN,
+      rawReport: EXAMPLE_EN,
       priority: "critical",
       status: "new",
-      location: "Av. Grau 120",
+      location: "Plaza San Martin",
       affectedPeople: 3,
       trappedPeople: 1,
       medicalEmergency: true,
       needs: ["rescue", "medical"],
-      summary: "CRITICAL smoke incident at Av. Grau 120.",
+      summary: "CRITICAL smoke incident at Plaza San Martin.",
       syncStatus: "pending",
     };
 

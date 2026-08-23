@@ -1,9 +1,9 @@
 const BASE = process.env.RESCUEMESH_URL ?? "http://127.0.0.1:43147";
 
 const EN =
-  "Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.";
+  "A bus crashed into a storefront. There are three of us. One person is trapped and another one is bleeding. We are at Plaza San Martin.";
 const ES =
-  "Se cayó parte del edificio. Somos tres, una persona está atrapada y otra está sangrando. Estamos en Av. Grau 120.";
+  "Un bus se estrelló contra un local. Somos tres, una persona está atrapada y otra está sangrando. Estamos en Plaza San Martín.";
 
 async function analyze(rawReport) {
   const response = await fetch(`${BASE}/api/qvac/analyze`, {
@@ -23,7 +23,7 @@ function assert(condition, message) {
 
 const en = await analyze(EN);
 assert(en.extraction?.priority === "critical", `EN priority: ${en.extraction?.priority}`);
-assert(en.extraction?.location === "Av. Grau 120", `EN location: ${en.extraction?.location}`);
+assert(/Plaza San Mart[ií]n/i.test(en.extraction?.location ?? ""), `EN location: ${en.extraction?.location}`);
 assert(en.extraction?.affectedPeople === 3, `EN affected: ${en.extraction?.affectedPeople}`);
 assert(en.extraction?.trappedPeople === 1, `EN trapped: ${en.extraction?.trappedPeople}`);
 assert(en.extraction?.medicalEmergency === true, "EN medical");
@@ -34,7 +34,7 @@ assert(!en.extraction?.needs.includes("infrastructure"), "EN should not tag infr
 const es = await analyze(ES);
 assert(es.extraction?.priority === "critical", `ES priority: ${es.extraction?.priority}`);
 assert(es.extraction?.summary?.includes("CRITICAL"), `ES summary: ${es.extraction?.summary}`);
-assert(!es.extraction?.summary?.includes("Se cayó"), "ES summary should be English");
+assert(!/estrelló|sangrando/i.test(es.extraction?.summary ?? ""), "ES summary should be English");
 
 const status = await fetch(`${BASE}/api/qvac/status`).then((r) => r.json());
 assert(status.externalApi === false, "External AI API must be false");

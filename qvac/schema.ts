@@ -42,47 +42,47 @@ export function validateQvacExtraction(input: unknown): {
   const issues: QvacValidationIssue[] = [];
 
   if (!input || typeof input !== "object") {
-    return { ok: false, issues: [{ field: "root", message: "La respuesta no es un objeto JSON." }] };
+    return { ok: false, issues: [{ field: "root", message: "The response is not a JSON object." }] };
   }
 
   const record = input as Record<string, unknown>;
 
   if (!isPriority(record.priority)) {
-    issues.push({ field: "priority", message: "priority debe ser critical, high, medium o low." });
+    issues.push({ field: "priority", message: "priority must be critical, high, medium, or low." });
   }
 
   if (typeof record.medicalEmergency !== "boolean") {
-    issues.push({ field: "medicalEmergency", message: "medicalEmergency debe ser boolean." });
+    issues.push({ field: "medicalEmergency", message: "medicalEmergency must be a boolean." });
   }
 
   if (!Array.isArray(record.needs)) {
-    issues.push({ field: "needs", message: "needs debe ser un arreglo." });
+    issues.push({ field: "needs", message: "needs must be an array." });
   } else {
     const invalid = record.needs.filter((need) => !isNeedType(need));
     if (invalid.length > 0) {
-      issues.push({ field: "needs", message: "needs contiene valores fuera de la taxonomía." });
+      issues.push({ field: "needs", message: "needs contains values outside the taxonomy." });
     }
     if (record.needs.length === 0) {
-      issues.push({ field: "needs", message: "needs no puede estar vacío." });
+      issues.push({ field: "needs", message: "needs cannot be empty." });
     }
   }
 
   if (typeof record.summary !== "string" || record.summary.trim().length < 8) {
-    issues.push({ field: "summary", message: "summary debe ser un texto breve descriptivo." });
+    issues.push({ field: "summary", message: "summary must be a short descriptive text." });
   }
 
   if (record.location !== undefined && typeof record.location !== "string") {
-    issues.push({ field: "location", message: "location debe ser texto." });
+    issues.push({ field: "location", message: "location must be text." });
   }
 
   const affected = asOptionalNumber(record.affectedPeople);
   if (record.affectedPeople !== undefined && affected === undefined) {
-    issues.push({ field: "affectedPeople", message: "affectedPeople debe ser un número >= 0." });
+    issues.push({ field: "affectedPeople", message: "affectedPeople must be a number >= 0." });
   }
 
   const trapped = asOptionalNumber(record.trappedPeople);
   if (record.trappedPeople !== undefined && trapped === undefined) {
-    issues.push({ field: "trappedPeople", message: "trappedPeople debe ser un número >= 0." });
+    issues.push({ field: "trappedPeople", message: "trappedPeople must be a number >= 0." });
   }
 
   if (issues.length > 0) return { ok: false, issues };

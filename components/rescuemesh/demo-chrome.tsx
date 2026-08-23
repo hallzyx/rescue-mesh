@@ -19,13 +19,13 @@ export function DemoChrome({ children }: { children: React.ReactNode }) {
         {demoMode ? (
           <div className="flex flex-col gap-2 rounded-xl border border-red-900/70 bg-red-950/40 p-3 sm:flex-row sm:items-center">
             <p className="flex-1 text-sm text-red-100">
-              Paso 6: cierra este peer desde la UI. Mata el proceso, no solo la pestaña.
+              Step 6: stop this peer from the UI. It kills the process, not just the tab.
             </p>
             <StopPeerButton
               variant="banner"
               className="sm:w-auto"
-              label="Cerrar este peer"
-              confirmLabel="Confirmar: matar proceso"
+              label="Stop this peer"
+              confirmLabel="Confirm: kill process"
             />
           </div>
         ) : null}

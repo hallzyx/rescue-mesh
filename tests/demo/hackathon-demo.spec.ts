@@ -1,7 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-
-const GRAU =
-  "Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.";
+import { EXAMPLE_EN } from "../fixtures";
 
 const PEER_A = process.env.RESCUEMESH_URL ?? "http://127.0.0.1:43147";
 const PEER_B = process.env.RESCUEMESH_PEER_B_URL ?? "http://127.0.0.1:43148";
@@ -89,25 +87,25 @@ test.describe("Demo hackathon — 7 pasos", () => {
       expect((await status.json()).externalApi).toBe(false);
     });
 
-    await test.step("Paso 2 — El Reporter escribe Av. Grau 120", async () => {
+    await test.step("Paso 2 — El Reporter escribe Plaza San Martin", async () => {
       await openAs(page, "reporter", "/reporter/report");
-      await page.getByRole("button", { name: "Ejemplo EN (demo)" }).click();
-      await expect(page.locator("#report")).toHaveValue(GRAU);
-      await page.getByRole("button", { name: "Enviar reporte" }).click();
+      await page.getByRole("button", { name: "EN example (demo)" }).click();
+      await expect(page.locator("#report")).toHaveValue(EXAMPLE_EN);
+      await page.getByRole("button", { name: "Submit report" }).click();
       await expect(page.getByText("Analyzing locally…")).toBeVisible();
     });
 
     await test.step("Paso 3 — QVAC produce CRITICAL (rescue + medical)", async () => {
       await expect(page.getByText("CRITICAL", { exact: true })).toBeVisible({ timeout: 20_000 });
-      await expect(page.getByText("Av. Grau 120").first()).toBeVisible();
+      await expect(page.getByText(/Plaza San Mart/i).first()).toBeVisible();
       await expect(page.getByText("3 affected")).toBeVisible();
       await expect(page.getByText("1 trapped")).toBeVisible();
       await expect(page.getByText("Medical emergency")).toBeVisible();
       await expect(page.getByText("Rescue", { exact: true })).toBeVisible();
       await expect(page.getByText("Medical", { exact: true })).toBeVisible();
 
-      await page.getByRole("button", { name: "Confirmar y guardar" }).click();
-      await expect(page.getByText("Incidente guardado localmente")).toBeVisible();
+      await page.getByRole("button", { name: "Confirm and save" }).click();
+      await expect(page.getByText("Incident saved locally")).toBeVisible();
       const idText = await page.getByText(/ID:/).innerText();
       const match = idText.match(/inc-[a-z0-9]+/i);
       expect(match, "ID de incidente de demo").toBeTruthy();
@@ -118,7 +116,7 @@ test.describe("Demo hackathon — 7 pasos", () => {
       await openAs(page, "responder", "/responder");
       await expect(page.getByText("New critical incident")).toBeVisible();
       await expect(page.getByText(incidentId).first()).toBeVisible();
-      await expect(page.getByText("Av. Grau 120").first()).toBeVisible();
+      await expect(page.getByText(/Plaza San Mart/i).first()).toBeVisible();
     });
 
     await test.step("Paso 5 — Network Diagnostics lee el runtime (sin fixtures)", async () => {
@@ -132,9 +130,9 @@ test.describe("Demo hackathon — 7 pasos", () => {
     });
 
     await test.step("Paso 6 — Cerrar el Reporter (sesión / rol)", async () => {
-      await page.getByRole("button", { name: "Cambiar rol" }).click();
+      await page.getByRole("button", { name: "Switch role" }).click();
       await expect(page.getByRole("heading", { name: "RescueMesh" })).toBeVisible();
-      await expect(page.getByRole("button", { name: "Entrar como Reporter" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Enter as Reporter" })).toBeVisible();
     });
 
     await test.step("Paso 7 — El incidente permanece (The original reporter is gone. The incident isn't.)", async () => {
@@ -152,14 +150,14 @@ test.describe("Demo hackathon — 7 pasos", () => {
     expect(mesh.a.peerId).not.toBe(mesh.b.peerId);
 
     const analyzed = await request.post("/api/qvac/analyze", {
-      data: { rawReport: GRAU },
+      data: { rawReport: EXAMPLE_EN },
     });
     const { extraction } = await analyzed.json();
     const incident = {
       id: `inc-demo-${Date.now().toString(36)}`,
       createdAt: new Date().toISOString(),
       createdByPeerId: mesh.a.peerId,
-      rawReport: GRAU,
+      rawReport: EXAMPLE_EN,
       priority: extraction.priority,
       status: "new",
       location: extraction.location,

@@ -34,7 +34,7 @@ npm run dev:peer-b
 
 Si P2P no conecta, graba solo Peer A:
 
-1. `/reporter/report?demo=1` → ejemplo Av. Grau 120 → confirmar.
+1. `/reporter/report?demo=1` → ejemplo Plaza San Martin → confirmar.
 2. `/responder?demo=1` en la misma instancia → dashboard local.
 3. Narración: **Local Crisis Intelligence Copilot** (QVAC + General).
 
@@ -58,7 +58,7 @@ Abrir Network en ambos peers brevemente.
 
 Peer A (`/reporter/report?demo=1`):
 
-> Part of my building collapsed. There are three of us. One person is trapped and another one is bleeding. We are at Av. Grau 120.
+> A bus crashed into a storefront. There are three of us. One person is trapped and another one is bleeding. We are at Plaza San Martin.
 
 Pulsar **Ejemplo EN (demo)** → **Enviar reporte**.
 
@@ -68,7 +68,7 @@ Mostrar **Analyzing locally…** y la tarjeta:
 
 ```text
 CRITICAL
-Av. Grau 120
+Plaza San Martin
 3 affected · 1 trapped · Medical emergency
 Needs: Rescue, Medical
 ```
@@ -94,6 +94,12 @@ En el director (`/demo`) o en Peer A (`?demo=1`): **Cerrar Peer A** → confirma
 Peer B sigue mostrando el incidente.
 
 > **The original reporter is gone. The incident isn't.**
+
+Ahí termina el guion de 7 pasos. Si sigue la grabación:
+
+1. **Command Center** (`http://127.0.0.1:43149/responder?demo=1`) — misma réplica, otro store.
+2. **Network** en B — Peer A aparece OFFLINE sin recargar.
+3. En `/demo` (si A está muerto, ábrelo en B: `http://127.0.0.1:43148/demo`) el botón de A pasa a **Prender Peer A**.
 
 ---
 
@@ -134,7 +140,7 @@ Abre `http://127.0.0.1:43149` → Command Center. Tres stores independientes, tr
 
 ## Checklist de credibilidad
 
-- [ ] Av. Grau 120 → CRITICAL + rescue + medical (estable)
+- [ ] Plaza San Martin → CRITICAL + rescue + medical (estable)
 - [ ] Network Diagnostics sin fixtures
 - [ ] Cerrar A no borra incidente en B
 - [ ] External AI API: NONE

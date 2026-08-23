@@ -23,9 +23,9 @@ export function RolePicker() {
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-slate-50">RescueMesh</h1>
         <p className="mt-2 max-w-md text-slate-400">
-          Red descentralizada de coordinación para emergencias. Elige el rol de esta instancia.
+          Decentralized emergency coordination. Choose the role for this instance.
         </p>
-        <p className="mt-1 text-xs text-slate-500">Sin autenticación · Desktop MVP</p>
+        <p className="mt-1 text-xs text-slate-500">No authentication · Desktop MVP</p>
       </div>
 
       <div className="grid w-full max-w-4xl gap-4 sm:grid-cols-3">
@@ -36,12 +36,12 @@ export function RolePicker() {
               Reporter
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Ciudadano afectado, voluntario o brigadista que registra lo que ocurre en texto libre.
+              Affected citizen, volunteer, or brigade member who records what is happening in free text.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button className="w-full bg-red-700 hover:bg-red-600" onClick={() => choose("reporter")}>
-              Entrar como Reporter
+              Enter as Reporter
             </Button>
           </CardContent>
         </Card>
@@ -53,7 +53,7 @@ export function RolePicker() {
               Responder
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Brigada, ONG o centro de coordinación que prioriza incidentes y cambia su estado.
+              Brigade, NGO, or coordination center that prioritizes incidents and updates their status.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -61,7 +61,7 @@ export function RolePicker() {
               className="w-full bg-slate-100 text-slate-900 hover:bg-white"
               onClick={() => choose("responder")}
             >
-              Entrar como Responder
+              Enter as Responder
             </Button>
           </CardContent>
         </Card>
@@ -73,8 +73,8 @@ export function RolePicker() {
               Command Center
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Tercer peer: vista operacional de mando. Usa{" "}
-              <code className="text-violet-300">npm run dev:peer-c</code> (puerto 43149).
+              Third peer: command operational view. Use{" "}
+              <code className="text-violet-300">npm run dev:peer-c</code> (port 43149).
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -82,7 +82,7 @@ export function RolePicker() {
               className="w-full bg-violet-700 hover:bg-violet-600"
               onClick={() => choose("responder")}
             >
-              Entrar como Command Center
+              Enter as Command Center
             </Button>
           </CardContent>
         </Card>
@@ -90,7 +90,7 @@ export function RolePicker() {
 
       <p className="mt-8 text-center text-xs text-slate-500">
         <Link href="/plan" className="underline underline-offset-2 hover:text-slate-300">
-          Ver plan de implementación
+          View implementation plan
         </Link>
       </p>
     </div>

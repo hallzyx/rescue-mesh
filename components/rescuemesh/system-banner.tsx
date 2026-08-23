@@ -32,7 +32,7 @@ export function SystemBanner() {
             type="button"
             className="rounded p-1 opacity-70 hover:opacity-100"
             onClick={() => dismissSystemError(error.id)}
-            aria-label="Cerrar aviso"
+            aria-label="Dismiss notice"
           >
             <X className="size-4" />
           </button>

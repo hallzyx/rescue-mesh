@@ -30,7 +30,7 @@ export async function analyzeReport(
     return {
       ok: false,
       provider: "local-engine",
-      issues: [{ field: "network", message: "No se pudo contactar el motor local de análisis." }],
+      issues: [{ field: "network", message: "Could not reach the local analysis engine." }],
     };
   }
 
@@ -56,7 +56,7 @@ export async function analyzeReport(
   return {
     ok: false,
     provider: payload.provider,
-    issues: payload.issues ?? [{ field: "qvac", message: "Respuesta inválida tras reintento." }],
+    issues: payload.issues ?? [{ field: "qvac", message: "Invalid response after retry." }],
     raw: payload.raw,
   };
 }
@@ -86,7 +86,7 @@ export async function fetchQvacStatus(): Promise<QvacRuntimeStatus> {
 export async function warmupQvac(): Promise<{ ready: boolean; error?: string }> {
   const response = await fetch("/api/qvac/warmup", { method: "POST" });
   if (!response.ok) {
-    return { ready: false, error: "No se pudo precalentar QVAC." };
+    return { ready: false, error: "Could not warm up QVAC." };
   }
   return response.json() as Promise<{ ready: boolean; error?: string }>;
 }

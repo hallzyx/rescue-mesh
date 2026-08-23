@@ -33,10 +33,10 @@ export function DemoStatusBar({ compact = false }: { compact?: boolean }) {
       if (!active) return;
 
       setFlags({
-        aiLocal: Boolean(qvac),
+        aiLocal: Boolean(qvac) && qvac.externalApi === false,
         p2pConnected: (p2p?.connectedCount ?? 0) > 0,
         centralServerNone: true,
-        qvacReady: qvac?.warmupReady ?? false,
+        qvacReady: Boolean(qvac?.warmupReady || qvac?.modelLoaded),
         loading: false,
       });
     }
@@ -54,8 +54,8 @@ export function DemoStatusBar({ compact = false }: { compact?: boolean }) {
   const items = [
     {
       label: "AI LOCAL",
-      ok: flags.aiLocal && flags.qvacReady,
-      hint: flags.qvacReady ? "QVAC ready" : "Warming up…",
+      ok: flags.aiLocal,
+      hint: flags.qvacReady ? "QVAC ready" : "Local engine online",
     },
     {
       label: flags.p2pConnected ? "P2P CONNECTED" : "P2P ISOLATED",
