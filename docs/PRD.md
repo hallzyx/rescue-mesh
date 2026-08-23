@@ -1,5 +1,7 @@
 # RescueMesh — PRD MVP
 
+English product contract and operator docs: [README](../README.md) · [docs/PRODUCT.md](PRODUCT.md). This file is the original Spanish PRD.
+
 ## 1. Resumen
 
 **RescueMesh** es una red descentralizada de coordinación para emergencias que transforma reportes humanos desordenados en incidentes estructurados, priorizados y replicables entre participantes.

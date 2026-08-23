@@ -1,50 +1,36 @@
-# RescueMesh — Guion de demo (Fase 3)
+# RescueMesh demo script
 
-Pantalla de control: [`/demo`](http://127.0.0.1:43147/demo)
+Control screen: [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo)
 
-## Test automático del guion
+## Automated script
 
 ```bash
 npm run test:demo
 ```
 
-Levanta Peer A (`:43147`) y Peer B (`:43148`) si no están arriba, recorre los 7 pasos en Chromium y **exige** que B reciba el incidente por Pear. Sin skip.
+Starts Peer A (`:43147`) and Peer B (`:43148`) if they are down, walks the 7 steps in Chromium, and requires B to receive the incident over Pear. No skip.
 
-## Preparación (antes de grabar)
+## Before recording
 
-```bash
-docker compose up --build
-```
+Start the mesh as in [Getting Started](GETTING_STARTED.md). Then:
 
-O, sin Docker:
+1. Open [http://127.0.0.1:43147/demo](http://127.0.0.1:43147/demo). The director introduces A and B if the mesh is still empty.
+2. Wait for **AI LOCAL ✓** and **P2P CONNECTED ✓**. Do not record on `P2P ISOLATED` or Peer IDs `------` / `offline`.
+3. From the director: **Open Report Emergency** (A) and **Open Dashboard** (B), side by side, with `?demo=1`.
 
-```bash
-# Terminal A — Reporter
-npm run dev:peer-a
+## Fallback without Pear
 
-# Terminal B — Responder
-npm run dev:peer-b
-```
+If P2P does not connect, record only Peer A:
 
-1. Abre [`http://127.0.0.1:43147/demo`](http://127.0.0.1:43147/demo). El director presenta A y B si el mesh aún no está armado.
-2. Espera **AI LOCAL ✓** y **P2P CONNECTED ✓**. No pulses grabar si ves `P2P ISOLATED` o Peer IDs `------` / `offline`.
-3. Desde el director: **Abrir Report Emergency** (A) y **Abrir Dashboard** (B), lado a lado, con `?demo=1`.
+1. `/reporter/report?demo=1` → Plaza San Martin example → confirm.
+2. `/responder?demo=1` on the same instance → local dashboard.
+3. Narration: **Local Crisis Intelligence Copilot** (QVAC). Do not claim a mesh.
 
-## Fallback sin Pear
+## 7-step flow
 
-Si P2P no conecta, graba solo Peer A:
+### Step 1 — Runtime
 
-1. `/reporter/report?demo=1` → ejemplo Plaza San Martin → confirmar.
-2. `/responder?demo=1` en la misma instancia → dashboard local.
-3. Narración: **Local Crisis Intelligence Copilot** (QVAC + General).
-
----
-
-## Flujo de 7 pasos
-
-### Paso 1 — Runtime
-
-Mostrar barra superior:
+Show the top bar:
 
 ```text
 AI LOCAL ✓
@@ -52,19 +38,19 @@ P2P CONNECTED ✓
 CENTRAL SERVER NONE
 ```
 
-Abrir Network en ambos peers brevemente.
+Open Network on both peers briefly.
 
-### Paso 2 — Reporter escribe
+### Step 2 — The Reporter writes
 
 Peer A (`/reporter/report?demo=1`):
 
 > A bus crashed into a storefront. There are three of us. One person is trapped and another one is bleeding. We are at Plaza San Martin.
 
-Pulsar **Ejemplo EN (demo)** → **Enviar reporte**.
+Click **EN example (demo)** → **Submit report**.
 
-### Paso 3 — QVAC estructura
+### Step 3 — QVAC structures it
 
-Mostrar **Analyzing locally…** y la tarjeta:
+Show **Analyzing locally…** and the card:
 
 ```text
 CRITICAL
@@ -73,75 +59,69 @@ Plaza San Martin
 Needs: Rescue, Medical
 ```
 
-Confirmar y guardar.
+Confirm and save.
 
-### Paso 4 — Responder recibe
+### Step 4 — The Responder receives it
 
-Peer B (`/responder?demo=1`): banner **NEW CRITICAL INCIDENT** arriba del dashboard.
+Peer B (`/responder?demo=1`): **New critical incident** at the top of the dashboard.
 
-### Paso 5 — Diagnóstico
+### Step 5 — Honest diagnostics
 
-Abrir `/reporter/network?demo=1` y `/responder/network?demo=1`.
+Open `/reporter/network?demo=1` and `/responder/network?demo=1`.
 
-Leer Peer IDs reales del runtime (no hardcodeados).
+Read Peer IDs from runtime. Do not use fixtures.
 
-### Paso 6 — Cerrar Peer A
+### Step 6 — Stop Peer A
 
-En el director (`/demo`) o en Peer A (`?demo=1`): **Cerrar Peer A** → confirmar. Mata el proceso Node, no solo la pestaña. `Ctrl+C` en la terminal sigue funcionando.
+On the director (`/demo`) or Peer A (`?demo=1`): **Stop Peer A** → confirm. It kills the Node process, not just the tab. `Ctrl+C` in the terminal still works.
 
-### Paso 7 — El incidente permanece
+### Step 7 — The incident remains
 
-Peer B sigue mostrando el incidente.
+Peer B still shows the incident.
 
 > **The original reporter is gone. The incident isn't.**
 
-Ahí termina el guion de 7 pasos. Si sigue la grabación:
+That is the end of the 7-step script. If recording continues:
 
-1. **Command Center** (`http://127.0.0.1:43149/responder?demo=1`) — misma réplica, otro store.
-2. **Network** en B — Peer A aparece OFFLINE sin recargar.
-3. En `/demo` (si A está muerto, ábrelo en B: `http://127.0.0.1:43148/demo`) el botón de A pasa a **Prender Peer A**.
+1. **Command Center** (`http://127.0.0.1:43149/responder?demo=1`) — same replica, another store.
+2. **Network** on B — Peer A reads OFFLINE without a reload.
+3. If A is dead, open the director on B: `http://127.0.0.1:43148/demo`. The A control becomes **Start Peer A**.
 
----
+## Expected errors (clean UI)
 
-## Errores esperados (UI limpia)
+| Situation | What the UI shows |
+| --- | --- |
+| Invalid QVAC JSON | Manual review (no stack trace) |
+| QVAC down | Banner + manual form |
+| P2P isolated | ISOLATED + `syncStatus: pending` |
+| Corrupt localStorage | Warning banner + demo seed restored |
 
-| Situación | Qué muestra la UI |
-|-----------|-------------------|
-| JSON QVAC inválido | Revisión manual (sin stack trace) |
-| QVAC caído | Banner + formulario manual |
-| P2P aislado | ISOLATED + `syncStatus: pending` |
-| localStorage corrupto | Banner de advertencia + seed restaurado |
-
----
-
-## Stretch goals (Fase 4)
+## Stretch
 
 ### Audio → QVAC
 
-En `/reporter/report`, pulsa **Dictar reporte (local)**. Usa Web Speech API del navegador (sin STT cloud). El texto transcrito pasa por el mismo pipeline QVAC.
+On `/reporter/report`, click **Dictate report (local)**. Uses the browser Web Speech API (no cloud STT). Transcript follows the same QVAC pipeline.
 
-### Traducción operacional
+### Operational translation
 
-Pulsa **Ejemplo ES (traducción)** y envía. El `rawReport` queda en español; el `summary` del dashboard sale en inglés operacional.
+Click **ES example (translation)** and submit. `rawReport` stays Spanish; the dashboard `summary` is English.
 
-### Deduplicación
+### Dedup
 
-Si dos incidentes comparten zona, afectados similares y están a ≤30 min, aparecen en **Likely duplicates** en el dashboard del Responder. No se borran ni fusionan solos.
+If two incidents share area, similar impact, and ≤30 minutes, they appear under **Likely duplicates** on the Responder dashboard. They are not deleted or merged automatically.
 
-### Tercer peer
+### Third peer
 
 ```bash
-npm run dev:peer-c
+npx next dev --port 43149
 ```
 
-Abre `http://127.0.0.1:43149` → Command Center. Tres stores independientes, tres Peer IDs, mismo mesh P2P.
+Open `http://127.0.0.1:43149` → Command Center. Three stores, three Peer IDs, one mesh.
 
----
+## Credibility checklist
 
-## Checklist de credibilidad
-
-- [ ] Plaza San Martin → CRITICAL + rescue + medical (estable)
-- [ ] Network Diagnostics sin fixtures
-- [ ] Cerrar A no borra incidente en B
+- [ ] Plaza San Martin → CRITICAL + rescue + medical
+- [ ] Network Diagnostics without fixtures
+- [ ] Stopping A does not delete the incident on B
 - [ ] External AI API: NONE
 - [ ] Central backend: NONE

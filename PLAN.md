@@ -1,5 +1,7 @@
 # RescueMesh — Plan de acción
 
+English documentation index: [README](README.md). Product contract: [docs/PRODUCT.md](docs/PRODUCT.md).
+
 Fuente de verdad: PRD MVP de RescueMesh.
 
 **One-liner:** RescueMesh turns fragmented emergency reports into a shared, prioritized operational picture using local AI and peer-to-peer coordination.
