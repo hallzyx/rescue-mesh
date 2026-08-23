@@ -1,8 +1,12 @@
+import { createRequire } from "node:module";
+import path from "node:path";
 import { buildUserPrompt, QVAC_SYSTEM_PROMPT } from "./prompts";
 import { parseQvacResponse } from "./parser";
 import { analyzeWithLocalEngine } from "./local-engine";
 import { localizeSummary } from "./translate-summary";
 import type { QvacExtraction, QvacProvider } from "./schema";
+
+const projectRequire = createRequire(path.join(process.cwd(), "package.json"));
 
 let cachedModelId: string | null = null;
 let sdkChecked = false;
@@ -23,11 +27,11 @@ type QvacSdkModule = {
   LLAMA_3_2_1B_INST_Q4_0: string;
 };
 
-async function importQvacSdk(): Promise<QvacSdkModule | null> {
+function importQvacSdk(): QvacSdkModule | null {
   try {
-    const specifier = ["@qvac", "sdk"].join("/");
-    return (await import(specifier)) as QvacSdkModule;
-  } catch {
+    return projectRequire("@qvac/sdk") as QvacSdkModule;
+  } catch (error) {
+    console.error("[QVAC SDK] no disponible", error);
     return null;
   }
 }
@@ -35,13 +39,13 @@ async function importQvacSdk(): Promise<QvacSdkModule | null> {
 async function canUseQvacSdk(): Promise<boolean> {
   if (sdkChecked) return sdkAvailable;
   sdkChecked = true;
-  const sdk = await importQvacSdk();
+  const sdk = importQvacSdk();
   sdkAvailable = sdk !== null;
   return sdkAvailable;
 }
 
 async function completeWithQvacSdk(rawReport: string): Promise<string> {
-  const sdk = await importQvacSdk();
+  const sdk = importQvacSdk();
   if (!sdk) {
     throw new Error("QVAC SDK no disponible.");
   }
