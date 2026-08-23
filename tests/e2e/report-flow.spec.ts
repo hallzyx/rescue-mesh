@@ -35,6 +35,7 @@ test.describe("e2e: reporter → QVAC → dashboard", () => {
     await expect(
       page.getByText("The original reporter is gone. The incident isn't.", { exact: true }),
     ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Cerrar Peer A" })).toBeVisible();
   });
 
   test("Av. Grau report becomes a persisted CRITICAL incident", async ({ page }) => {

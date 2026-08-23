@@ -87,7 +87,7 @@ Leer Peer IDs reales del runtime (no hardcodeados).
 
 ### Paso 6 — Cerrar Peer A
 
-Matar el proceso del Reporter (`Ctrl+C` en terminal A).
+En el director (`/demo`) o en Peer A (`?demo=1`): **Cerrar Peer A** → confirmar. Mata el proceso Node, no solo la pestaña. `Ctrl+C` en la terminal sigue funcionando.
 
 ### Paso 7 — El incidente permanece
 

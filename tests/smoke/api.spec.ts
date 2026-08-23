@@ -84,6 +84,13 @@ test.describe("smoke: P2P API", () => {
     expect(Array.isArray(body.connectedPeers)).toBe(true);
   });
 
+  test("demo stop endpoint is advertised without exiting", async ({ request }) => {
+    const response = await request.get("/api/demo/stop");
+    expect(response.ok()).toBeTruthy();
+    const body = await response.json();
+    expect(body.stoppable).toBe(true);
+  });
+
   test("publish and list incident", async ({ request }) => {
     const incident = {
       id: `inc-smoke-${Date.now()}`,

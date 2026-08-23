@@ -284,7 +284,8 @@ export const demoSteps: DemoStep[] = [
   {
     step: 6,
     title: "Cerrar Peer A",
-    action: "Matar el proceso del reporter por completo.",
+    action:
+      "En el director o en Peer A: pulsar Cerrar Peer A y confirmar. Mata el proceso, no solo la pestaña.",
     show: "Peer A CLOSED",
   },
   {

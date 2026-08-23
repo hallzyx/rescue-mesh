@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DemoStatusBar } from "@/components/rescuemesh/demo-status-bar";
 import { QvacWarmup } from "@/components/rescuemesh/qvac-warmup";
+import { StopPeerButton } from "@/components/rescuemesh/stop-peer-button";
 import { demoSteps } from "@/lib/plan";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -106,6 +107,11 @@ export default function DemoDirectorPage() {
               <Button className="w-full bg-red-700 hover:bg-red-600" render={<Link href={`${PEER_A_URL}/reporter/report?demo=1`} target="_blank" />} >
                 Abrir Report Emergency
               </Button>
+              <StopPeerButton
+                endpoint={`${PEER_A_URL}/api/demo/stop`}
+                label="Cerrar Peer A"
+                confirmLabel="Confirmar: matar Peer A"
+              />
             </CardContent>
           </Card>
 
@@ -119,6 +125,11 @@ export default function DemoDirectorPage() {
               <Button className="w-full bg-sky-700 hover:bg-sky-600" render={<Link href={`${PEER_B_URL}/responder?demo=1`} target="_blank" />} >
                 Abrir Dashboard
               </Button>
+              <StopPeerButton
+                endpoint={`${PEER_B_URL}/api/demo/stop`}
+                label="Cerrar Peer B"
+                confirmLabel="Confirmar: matar Peer B"
+              />
             </CardContent>
           </Card>
 
@@ -132,6 +143,11 @@ export default function DemoDirectorPage() {
               <Button className="w-full bg-violet-700 hover:bg-violet-600" render={<Link href={`${PEER_C_URL}/responder?demo=1`} target="_blank" />} >
                 Abrir Command Center
               </Button>
+              <StopPeerButton
+                endpoint={`${PEER_C_URL}/api/demo/stop`}
+                label="Cerrar Peer C"
+                confirmLabel="Confirmar: matar Peer C"
+              />
             </CardContent>
           </Card>
         </div>
